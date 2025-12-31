@@ -2,6 +2,36 @@
 
 This project uses automated semantic versioning. Releases are created automatically when PRs are merged to `main`.
 
+## Initial Setup
+
+After creating your GitHub repository, run the setup script:
+
+```bash
+./scripts/setup-repo.sh
+```
+
+This will:
+- Create release labels (`release:major`, `release:minor`, `release:patch`, `release:skip`)
+- Enable branch protection (blocks direct pushes to `main`)
+- Require PR reviews and passing CI before merge
+- Enable auto-merge and delete-branch-on-merge
+
+## Branch Protection
+
+Direct pushes to `main` are blocked. All changes must go through pull requests:
+
+```bash
+# Create a feature branch
+git checkout -b feat/my-feature
+
+# Make changes and commit
+git commit -m "feat: add new feature"
+
+# Push and create PR
+git push -u origin feat/my-feature
+gh pr create --fill
+```
+
 ## How It Works
 
 ### Automatic Releases (Recommended)
