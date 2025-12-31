@@ -392,6 +392,10 @@ final class MNISTDataset: MLXDataset, @unchecked Sendable {
         var images: [[Float]] = []
         images.reserveCapacity(numImages)
 
+        // MNIST standard normalization values
+        let mean: Float = 0.1307
+        let std: Float = 0.3081
+
         for i in 0..<numImages {
             let offset = headerSize + i * pixelsPerImage
             var pixels: [Float] = []
@@ -399,13 +403,14 @@ final class MNISTDataset: MLXDataset, @unchecked Sendable {
 
             for j in 0..<pixelsPerImage {
                 let byte = data[offset + j]
-                // Normalize to [0, 1]
-                pixels.append(Float(byte) / 255.0)
+                // Normalize to [0, 1] then apply mean/std normalization
+                let normalized = (Float(byte) / 255.0 - mean) / std
+                pixels.append(normalized)
             }
             images.append(pixels)
         }
 
-        print("[MNIST] Loaded \(numImages) images")
+        print("[MNIST] Loaded \(numImages) images (normalized with mean=\(mean), std=\(std))")
         return images
     }
 
