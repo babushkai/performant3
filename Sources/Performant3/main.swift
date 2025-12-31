@@ -194,8 +194,11 @@ class AppState: ObservableObject {
             try await DatabaseManager.shared.setup()
             databaseInitialized = true
         } catch {
-            print("Database initialization failed: \(error)")
+            print("[Performant3] Database initialization failed: \(error.localizedDescription)")
             // Continue with JSON storage as fallback
+            #if DEBUG
+            print("[Performant3] Debug: Full error details - \(error)")
+            #endif
         }
     }
 
