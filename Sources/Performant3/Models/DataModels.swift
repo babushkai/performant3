@@ -46,6 +46,7 @@ enum ModelStatus: String, Codable, CaseIterable {
     case deployed = "Deployed"
     case failed = "Failed"
     case archived = "Archived"
+    case deprecated = "Deprecated"
 
     var color: Color {
         switch self {
@@ -56,6 +57,7 @@ enum ModelStatus: String, Codable, CaseIterable {
         case .deployed: return .purple
         case .failed: return .red
         case .archived: return .secondary
+        case .deprecated: return .brown
         }
     }
 
@@ -68,6 +70,14 @@ enum ModelStatus: String, Codable, CaseIterable {
         case .deployed: return "icloud"
         case .failed: return "xmark.circle"
         case .archived: return "archivebox"
+        case .deprecated: return "exclamationmark.triangle"
+        }
+    }
+
+    var isActive: Bool {
+        switch self {
+        case .archived, .deprecated: return false
+        default: return true
         }
     }
 }
@@ -270,18 +280,23 @@ struct MetricPoint: Identifiable, Codable, Hashable {
 struct Dataset: Identifiable, Codable, Hashable {
     let id: String
     var name: String
+    var description: String
     var type: DatasetType
+    var status: DatasetStatus
     var path: String?
     var sampleCount: Int
     var size: Int64
     var classes: [String]
     var createdAt: Date
+    var updatedAt: Date
     var metadata: [String: String]
 
     init(
         id: String = UUID().uuidString,
         name: String,
+        description: String = "",
         type: DatasetType,
+        status: DatasetStatus = .active,
         path: String? = nil,
         sampleCount: Int = 0,
         size: Int64 = 0,
@@ -290,13 +305,48 @@ struct Dataset: Identifiable, Codable, Hashable {
     ) {
         self.id = id
         self.name = name
+        self.description = description
         self.type = type
+        self.status = status
         self.path = path
         self.sampleCount = sampleCount
         self.size = size
         self.classes = classes
         self.createdAt = Date()
+        self.updatedAt = Date()
         self.metadata = metadata
+    }
+}
+
+enum DatasetStatus: String, Codable, CaseIterable {
+    case active = "Active"
+    case processing = "Processing"
+    case archived = "Archived"
+    case deprecated = "Deprecated"
+
+    var color: Color {
+        switch self {
+        case .active: return .green
+        case .processing: return .orange
+        case .archived: return .secondary
+        case .deprecated: return .brown
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .active: return "checkmark.circle"
+        case .processing: return "arrow.triangle.2.circlepath"
+        case .archived: return "archivebox"
+        case .deprecated: return "exclamationmark.triangle"
+        }
+    }
+
+    var isActive: Bool {
+        switch self {
+        case .archived, .deprecated: return false
+        default: return true
+        }
     }
 }
 

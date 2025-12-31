@@ -4,6 +4,22 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.2.3)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        type: boolean
+        default: false
+      draft:
+        description: 'Create as draft release'
+        required: false
+        type: boolean
+        default: false
 
 env:
   APP_NAME: Performant3
@@ -17,11 +33,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for changelog generation
 
-      - name: Extract version from tag
+      - name: Determine version
         id: version
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=${GITHUB_REF_NAME#v}
+          fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Building version: $VERSION"
 
@@ -44,12 +66,17 @@ jobs:
         run: swift package resolve
 
       - name: Import Code Signing Certificate
-        if: ${{ env.CERTIFICATE_BASE64 != '' }}
         env:
           CERTIFICATE_BASE64: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
+          # Skip if no certificate configured
+          if [ -z "$CERTIFICATE_BASE64" ]; then
+            echo "No signing certificate configured, skipping..."
+            exit 0
+          fi
+
           # Create temporary keychain
           KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
@@ -150,13 +177,18 @@ jobs:
           echo "Created $APP_DIR"
 
       - name: Notarize application
-        if: ${{ env.APPLE_ID != '' && env.SIGNING_IDENTITY != '' }}
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
           SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
         run: |
+          # Skip if notarization not configured
+          if [ -z "$APPLE_ID" ] || [ -z "$SIGNING_IDENTITY" ]; then
+            echo "Notarization not configured (requires APPLE_ID and MACOS_SIGNING_IDENTITY), skipping..."
+            exit 0
+          fi
+
           # Create ZIP for notarization
           ditto -c -k --keepParent "${APP_NAME}.app" "${APP_NAME}.zip"
 
@@ -205,41 +237,85 @@ jobs:
           echo "zip_path=$ZIP_NAME" >> $GITHUB_ENV
           echo "Created $ZIP_NAME"
 
-      - name: Generate release notes
-        id: release_notes
+      - name: Generate changelog
+        id: changelog
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          cat << EOF > release_notes.md
-          ## Performant3 v${VERSION}
+          # Get the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -n "$PREV_TAG" ]; then
+            echo "Generating changelog from $PREV_TAG to HEAD"
+            CHANGELOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges | head -50)
+          else
+            echo "No previous tag found, using recent commits"
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges -20)
+          fi
+
+          # Write changelog to file (handle multiline)
+          echo "$CHANGELOG" > changelog.txt
+
+      - name: Generate release notes
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          CHANGELOG=$(cat changelog.txt)
+
+          cat << 'EOF' > release_notes.md
+          ## Performant3 v${{ steps.version.outputs.version }}
 
           ### Installation
 
-          1. Download \`${APP_NAME}-${VERSION}.dmg\`
+          1. Download `Performant3-${{ steps.version.outputs.version }}.dmg`
           2. Open the DMG file
           3. Drag **Performant3** to your Applications folder
           4. Launch from Applications
+
+          > **Note:** On first launch, right-click and select "Open" if you see a Gatekeeper warning (for ad-hoc signed builds).
 
           ### System Requirements
 
           - macOS 14.0 (Sonoma) or later
           - Apple Silicon Mac (M1/M2/M3/M4)
 
+          ### What's Changed
+
+          EOF
+
+          cat changelog.txt >> release_notes.md
+
+          cat << EOF >> release_notes.md
+
           ### Checksums
 
           \`\`\`
-          SHA256 (DMG): $(shasum -a 256 "${APP_NAME}-${VERSION}.dmg" | awk '{print $1}')
-          SHA256 (ZIP): $(shasum -a 256 "${APP_NAME}-${VERSION}.zip" | awk '{print $1}')
+          SHA256 (DMG): $(shasum -a 256 "${APP_NAME}-${{ steps.version.outputs.version }}.dmg" | awk '{print $1}')
+          SHA256 (ZIP): $(shasum -a 256 "${APP_NAME}-${{ steps.version.outputs.version }}.zip" | awk '{print $1}')
           \`\`\`
+
+          ---
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "initial")...v${{ steps.version.outputs.version }}
           EOF
+
+      - name: Create tag for manual release
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin "v$VERSION"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.version.outputs.version }}
           name: Performant3 v${{ steps.version.outputs.version }}
           body_path: release_notes.md
-          draft: false
-          prerelease: ${{ contains(github.ref_name, '-') }}
+          draft: ${{ inputs.draft || false }}
+          prerelease: ${{ inputs.prerelease || contains(steps.version.outputs.version, '-') }}
           files: |
             ${{ env.dmg_path }}
             ${{ env.zip_path }}

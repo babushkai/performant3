@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main, master]
 
+env:
+  APP_NAME: Performant3
+
 jobs:
   build:
     name: Build and Test
@@ -40,15 +43,25 @@ jobs:
             -configuration Release \
             build
 
-      - name: Verify build artifacts
+      - name: Package application bundle
+        id: package
         run: |
+          # Determine version for PR builds
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            VERSION="pr-${{ github.event.pull_request.number }}-$(echo ${{ github.sha }} | cut -c1-7)"
+          else
+            VERSION="dev-$(echo ${{ github.sha }} | cut -c1-7)"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          # Find the build products directory
           DERIVED_DATA=$(xcodebuild -scheme Performant3 -showBuildSettings 2>/dev/null | grep -m 1 'BUILT_PRODUCTS_DIR' | awk '{print $3}')
 
           if [ -z "$DERIVED_DATA" ]; then
             DERIVED_DATA=$(find ~/Library/Developer/Xcode/DerivedData -name "peformant3-*" -type d 2>/dev/null | head -1)/Build/Products/Release
           fi
 
-          echo "Checking build artifacts in: $DERIVED_DATA"
+          echo "Build products at: $DERIVED_DATA"
 
           # Verify executable exists
           if [ ! -f "$DERIVED_DATA/Performant3" ]; then
@@ -61,5 +74,113 @@ jobs:
             echo "WARNING: MLX Metal bundle not found - Metal operations may fail"
           fi
 
+          # Create app bundle structure
+          APP_DIR="${APP_NAME}.app"
+          rm -rf "$APP_DIR"
+          mkdir -p "$APP_DIR/Contents/MacOS"
+          mkdir -p "$APP_DIR/Contents/Resources"
+          mkdir -p "$APP_DIR/Contents/Frameworks"
+
+          # Copy executable
+          cp "$DERIVED_DATA/Performant3" "$APP_DIR/Contents/MacOS/"
+
+          # Update Info.plist with version
+          cp Info.plist "$APP_DIR/Contents/"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP_DIR/Contents/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VERSION" "$APP_DIR/Contents/Info.plist"
+
+          # Copy Metal library bundle (critical for MLX)
+          if [ -d "$DERIVED_DATA/mlx-swift_Cmlx.bundle" ]; then
+            cp -R "$DERIVED_DATA/mlx-swift_Cmlx.bundle" "$APP_DIR/Contents/Resources/"
+            echo "Copied MLX Metal library bundle"
+          fi
+
+          # Copy other bundles
+          for bundle in "$DERIVED_DATA"/*.bundle; do
+            if [ -d "$bundle" ]; then
+              cp -R "$bundle" "$APP_DIR/Contents/Resources/"
+              echo "Copied $(basename "$bundle")"
+            fi
+          done
+
+          # Copy Python training scripts
+          if [ -d "Resources/Scripts" ]; then
+            mkdir -p "$APP_DIR/Contents/Resources/Scripts"
+            cp -R Resources/Scripts/* "$APP_DIR/Contents/Resources/Scripts/"
+            echo "Copied Python training scripts"
+          fi
+
+          # Copy frameworks if any
+          for framework in "$DERIVED_DATA/PackageFrameworks"/*.framework; do
+            if [ -d "$framework" ]; then
+              cp -R "$framework" "$APP_DIR/Contents/Frameworks/"
+              echo "Copied $(basename "$framework")"
+            fi
+          done
+
+          # Create PkgInfo
+          echo -n "APPL????" > "$APP_DIR/Contents/PkgInfo"
+
+          # Ad-hoc sign for testing
+          codesign --force --deep --sign - "$APP_DIR"
+
           echo "Build artifacts verified successfully"
-          ls -la "$DERIVED_DATA"
+          echo "Created $APP_DIR"
+
+      - name: Create ZIP for artifact
+        id: zip
+        run: |
+          ZIP_NAME="${APP_NAME}-${{ steps.package.outputs.version }}.zip"
+          ditto -c -k --keepParent "${APP_NAME}.app" "$ZIP_NAME"
+          echo "zip_name=$ZIP_NAME" >> $GITHUB_OUTPUT
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-${{ steps.package.outputs.version }}
+          path: ${{ steps.zip.outputs.zip_name }}
+          retention-days: 7
+
+      - name: Comment PR with download link
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = `## Build Successful :white_check_mark:
+
+            A test build is available for this PR.
+
+            **Download:** [View Artifacts](${artifactUrl}) → Scroll to "Artifacts" section
+
+            **Version:** \`${{ steps.package.outputs.version }}\`
+
+            > **Note:** The app is ad-hoc signed. On first launch, right-click and select "Open" to bypass Gatekeeper.`;
+
+            // Check if we already commented
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Build Successful')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
