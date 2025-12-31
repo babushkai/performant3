@@ -276,7 +276,7 @@ struct ArchitectureStep: View {
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 ForEach(ArchitectureType.allCases, id: \.self) { arch in
-                    ArchitectureCard(
+                    WizardArchitectureCard(
                         architecture: arch,
                         isSelected: selectedArchitecture == arch
                     ) {
@@ -523,11 +523,13 @@ struct FrameworkCard: View {
         case .coreML: return "iOS/macOS optimized"
         case .pytorch: return "Research & production"
         case .tensorflow: return "Cross-platform ML"
+        case .onnx: return "Interoperable format"
+        case .custom: return "Custom framework"
         }
     }
 }
 
-struct ArchitectureCard: View {
+struct WizardArchitectureCard: View {
     let architecture: ArchitectureType
     let isSelected: Bool
     let action: () -> Void
@@ -624,45 +626,4 @@ struct TagChip: View {
     }
 }
 
-struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
-
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let result = arrange(proposal: proposal, subviews: subviews)
-        return result.size
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let result = arrange(proposal: proposal, subviews: subviews)
-        for (index, position) in result.positions.enumerated() {
-            subviews[index].place(at: CGPoint(x: bounds.minX + position.x, y: bounds.minY + position.y), proposal: .unspecified)
-        }
-    }
-
-    private func arrange(proposal: ProposedViewSize, subviews: Subviews) -> (size: CGSize, positions: [CGPoint]) {
-        var positions: [CGPoint] = []
-        var currentX: CGFloat = 0
-        var currentY: CGFloat = 0
-        var lineHeight: CGFloat = 0
-        var maxWidth: CGFloat = 0
-
-        let maxX = proposal.width ?? .infinity
-
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-
-            if currentX + size.width > maxX && currentX > 0 {
-                currentX = 0
-                currentY += lineHeight + spacing
-                lineHeight = 0
-            }
-
-            positions.append(CGPoint(x: currentX, y: currentY))
-            lineHeight = max(lineHeight, size.height)
-            currentX += size.width + spacing
-            maxWidth = max(maxWidth, currentX)
-        }
-
-        return (CGSize(width: maxWidth, height: currentY + lineHeight), positions)
-    }
-}
+// FlowLayout is defined in InferenceView.swift

@@ -1,0 +1,37 @@
+# Configuration for PR Labeler
+# Automatically labels PRs based on changed files
+
+# Release labels based on file changes
+release:patch:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'Sources/**/*.swift'
+          - 'Resources/**'
+          - 'Info.plist'
+
+# Documentation changes (no release)
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.md'
+          - 'docs/**'
+
+# CI/CD changes (no release by default)
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**'
+
+# Dependencies
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'Package.swift'
+          - 'Package.resolved'
+
+# Build system
+build:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'build-app.sh'
+          - 'Package.swift'

@@ -1,6 +1,10 @@
-name: Release
+name: Release (Manual)
+
+# This workflow is for MANUAL releases only.
+# Automatic releases on PR merge are handled by auto-release.yml
 
 on:
+  # Only trigger on manual tag push (not from auto-release)
   push:
     tags:
       - 'v*.*.*'

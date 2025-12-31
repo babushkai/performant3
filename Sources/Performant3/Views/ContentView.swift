@@ -303,6 +303,7 @@ struct SidebarModelRow: View {
         case .archived: return .purple
         case .importing: return .blue
         case .deployed: return .teal
+        case .deprecated: return .brown
         }
     }
 }
