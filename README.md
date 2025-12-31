@@ -1,5 +1,9 @@
 # Performant3
 
+[![Build](https://github.com/babushkai/performant3/actions/workflows/build.yml/badge.svg)](https://github.com/babushkai/performant3/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/babushkai/performant3)](https://github.com/babushkai/performant3/releases/latest)
+[![License](https://img.shields.io/github/license/babushkai/performant3)](LICENSE)
+
 A native macOS MLOps platform built for Apple Silicon, featuring SwiftUI interface and MLX integration for local machine learning workflows.
 
 ## Features
