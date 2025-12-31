@@ -150,25 +150,15 @@ actor MLXInferenceService {
         // Convert to grayscale float array
         let pixelData = getPixelData(from: resizedImage)
 
-        // Normalize to [0, 1]
-        let normalizedData = pixelData.map { Float($0) / 255.0 }
+        // IMPORTANT: MNIST has white digits on black background (high values = digit)
+        // Most user images have black digits on white background (low values = digit)
+        // We need to INVERT the image so it matches MNIST format
+        // Also normalize to [0, 1]
+        let normalizedData = pixelData.map { 1.0 - (Float($0) / 255.0) }
 
-        // Create MLXArray with appropriate shape for the architecture
-        let inputSize = targetSize * targetSize
-        switch archType {
-        case "CNN":
-            // CNN expects [batch, channels, height, width] format
-            return MLXArray(normalizedData).reshaped([1, 1, targetSize, targetSize])
-        case "ResNet":
-            // ResNet also uses [batch, features] for our implementation
-            return MLXArray(normalizedData).reshaped([1, inputSize])
-        case "Transformer":
-            // Transformer uses [batch, sequence_length, features] but our impl takes flat
-            return MLXArray(normalizedData).reshaped([1, inputSize])
-        default:
-            // MLP expects [batch, features]
-            return MLXArray(normalizedData).reshaped([1, inputSize])
-        }
+        // Create MLXArray with shape [batch, height, width, channels] to match training
+        // The models will flatten internally if needed
+        return MLXArray(normalizedData).reshaped([1, targetSize, targetSize, 1])
     }
 
     private func resizeImage(_ image: CGImage, to size: CGSize) -> CGImage {

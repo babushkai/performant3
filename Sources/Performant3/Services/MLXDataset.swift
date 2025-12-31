@@ -451,7 +451,7 @@ final class MNISTDataset: MLXDataset, @unchecked Sendable {
 
     private static func decompressGzip(_ data: Data) throws -> Data {
         // Use zlib to decompress gzip data
-        guard data.count > 2 else {
+        guard data.count > 10 else {
             throw TrainingError.invalidDataset("Data too small to be gzip")
         }
 
@@ -460,10 +460,48 @@ final class MNISTDataset: MLXDataset, @unchecked Sendable {
             throw TrainingError.invalidDataset("Not a gzip file")
         }
 
-        // Skip gzip header (minimum 10 bytes for standard header)
-        // Header structure: magic(2) + method(1) + flags(1) + mtime(4) + xfl(1) + os(1)
-        let headerSize = 10
-        let compressedPayload = Array(data.dropFirst(headerSize))
+        // Parse gzip header to find where compressed data starts
+        // Header structure: magic(2) + method(1) + flags(1) + mtime(4) + xfl(1) + os(1) = 10 bytes minimum
+        let flags = data[3]
+        var headerSize = 10
+
+        // Check for optional header fields
+        // FEXTRA (bit 2): extra field present
+        if (flags & 0x04) != 0 {
+            guard data.count > headerSize + 2 else {
+                throw TrainingError.invalidDataset("Gzip header truncated (FEXTRA)")
+            }
+            let extraLen = Int(data[headerSize]) + Int(data[headerSize + 1]) * 256
+            headerSize += 2 + extraLen
+        }
+
+        // FNAME (bit 3): original filename present (null-terminated)
+        if (flags & 0x08) != 0 {
+            while headerSize < data.count && data[headerSize] != 0 {
+                headerSize += 1
+            }
+            headerSize += 1 // Skip null terminator
+        }
+
+        // FCOMMENT (bit 4): comment present (null-terminated)
+        if (flags & 0x10) != 0 {
+            while headerSize < data.count && data[headerSize] != 0 {
+                headerSize += 1
+            }
+            headerSize += 1 // Skip null terminator
+        }
+
+        // FHCRC (bit 1): header CRC16 present
+        if (flags & 0x02) != 0 {
+            headerSize += 2
+        }
+
+        guard headerSize < data.count - 8 else {
+            throw TrainingError.invalidDataset("Gzip header too large or file truncated")
+        }
+
+        // Gzip trailer is 8 bytes (CRC32 + original size), so compressed data ends 8 bytes before end
+        let compressedPayload = Array(data[headerSize..<(data.count - 8)])
 
         // Allocate destination buffer (MNIST files decompress to ~47MB max)
         let decompressedSize = 50_000_000  // 50MB should be enough
@@ -482,9 +520,10 @@ final class MNISTDataset: MLXDataset, @unchecked Sendable {
         }
 
         guard actualSize > 0 else {
-            throw TrainingError.invalidDataset("Decompression failed")
+            throw TrainingError.invalidDataset("Decompression failed - got \(actualSize) bytes")
         }
 
+        print("[MNIST] Decompressed \(compressedPayload.count) -> \(actualSize) bytes")
         return Data(bytes: decompressedBuffer, count: actualSize)
     }
 
