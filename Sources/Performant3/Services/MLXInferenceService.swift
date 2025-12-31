@@ -153,8 +153,13 @@ actor MLXInferenceService {
         // IMPORTANT: MNIST has white digits on black background (high values = digit)
         // Most user images have black digits on white background (low values = digit)
         // We need to INVERT the image so it matches MNIST format
-        // Also normalize to [0, 1]
-        let normalizedData = pixelData.map { 1.0 - (Float($0) / 255.0) }
+        // Then apply the same normalization as training (mean=0.1307, std=0.3081)
+        let mean: Float = 0.1307
+        let std: Float = 0.3081
+        let normalizedData = pixelData.map { pixel -> Float in
+            let inverted = 1.0 - (Float(pixel) / 255.0)  // Invert for MNIST format
+            return (inverted - mean) / std  // Same normalization as training
+        }
 
         // Create MLXArray with shape [batch, height, width, channels] to match training
         // The models will flatten internally if needed

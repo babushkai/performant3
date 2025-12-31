@@ -393,25 +393,38 @@ func forwardPass(model: Module, inputs: MLXArray, training: Bool) -> MLXArray {
 
 // MARK: - Loss Functions
 
-/// Cross entropy loss for classification
+/// Cross entropy loss for classification (FULLY VECTORIZED for proper gradient flow)
 func crossEntropyLoss(logits: MLXArray, labels: MLXArray) -> MLXArray {
-    // Compute log softmax for numerical stability
+    // CRITICAL: Must be fully vectorized for autograd to work properly
+    // Using loop with .item() breaks the computational graph!
+
+    let batchSize = logits.dim(0)
+    let numClasses = logits.dim(1)
+
+    // Cross-entropy loss = log_softmax_sum - logits_at_correct_class
+    // log_softmax = logits - log_sum_exp(logits)
+    // So: loss = log_sum_exp(logits) - logits[label]
+
+    // Compute log_sum_exp for numerical stability (vectorized)
     let maxLogits = logits.max(axis: -1, keepDims: true)
     let shifted = logits - maxLogits
-    let logSumExp = log(exp(shifted).sum(axis: -1, keepDims: true))
-    let logSoftmax = shifted - logSumExp
+    let logSumExp = maxLogits.squeezed(axis: -1) + log(exp(shifted).sum(axis: -1))  // Shape: [batch]
 
-    // Gather log probabilities for correct classes using advanced indexing
-    let batchSize = logits.dim(0)
-    var totalLoss = MLXArray(Float(0))
+    // Create one-hot encoding and use it to select correct class logits
+    // This is fully differentiable
+    let labelsInt = labels.asType(.int32).reshaped([batchSize])
 
-    // Simple loop-based NLL
-    for i in 0..<batchSize {
-        let labelIdx = labels[i].item(Int32.self)
-        let logProb = logSoftmax[i, Int(labelIdx)]
-        totalLoss = totalLoss - logProb
-    }
+    // One-hot encode labels: shape [batch, numClasses]
+    let indices = MLXArray(Array(0..<numClasses).map { Int32($0) })  // [0, 1, 2, ..., numClasses-1]
+    let labelsBroadcast = labelsInt.reshaped([batchSize, 1])  // [batch, 1]
+    let oneHot = (labelsBroadcast .== indices).asType(.float32)  // [batch, numClasses]
 
-    return totalLoss / Float(batchSize)
+    // Get logits for correct class: sum(oneHot * logits, axis=-1)
+    let correctLogits = (oneHot * logits).sum(axis: -1)  // Shape: [batch]
+
+    // Cross-entropy: log_sum_exp - correct_logits, then mean over batch
+    let loss = (logSumExp - correctLogits).mean()
+
+    return loss
 }
 
