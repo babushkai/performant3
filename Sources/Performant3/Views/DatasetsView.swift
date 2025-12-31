@@ -89,11 +89,11 @@ struct DatasetsView: View {
                         Label("\(activeCount) active", systemImage: "folder")
                         if archivedCount > 0 {
                             Label("\(archivedCount) archived", systemImage: "archivebox")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.textSecondary)
                         }
                     }
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
                 }
 
                 Spacer()
@@ -127,19 +127,19 @@ struct DatasetsView: View {
             HStack(spacing: 12) {
                 HStack {
                     Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                     TextField("Search datasets...", text: $searchText)
                         .textFieldStyle(.plain)
                     if !searchText.isEmpty {
                         Button(action: { searchText = "" }) {
                             Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.textSecondary)
                         }
                         .buttonStyle(.plain)
                     }
                 }
                 .padding(8)
-                .background(Color(NSColor.controlBackgroundColor))
+                .background(AppTheme.surface)
                 .cornerRadius(8)
 
                 Picker("Type", selection: $selectedType) {
@@ -191,7 +191,7 @@ struct DatasetsView: View {
                 }
             }
         }
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(AppTheme.background)
         .overlay {
             if isDraggingOver {
                 DatasetDropZone()
@@ -247,7 +247,7 @@ struct DatasetCard: View {
                     }
                     Text(dataset.type.rawValue)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
 
                 Spacer()
@@ -311,7 +311,7 @@ struct DatasetCard: View {
             if !dataset.description.isEmpty {
                 Text(dataset.description)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
                     .lineLimit(2)
             }
 
@@ -331,7 +331,7 @@ struct DatasetCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Classes")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 4) {
                             ForEach(dataset.classes.prefix(10), id: \.self) { className in
@@ -339,13 +339,13 @@ struct DatasetCard: View {
                                     .font(.caption2)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
-                                    .background(Color.accentColor.opacity(0.2))
+                                    .background(AppTheme.primary.opacity(0.2))
                                     .cornerRadius(4)
                             }
                             if dataset.classes.count > 10 {
                                 Text("+\(dataset.classes.count - 10) more")
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(AppTheme.textSecondary)
                             }
                         }
                     }
@@ -356,21 +356,21 @@ struct DatasetCard: View {
             HStack {
                 Text("Created \(dataset.createdAt.formatted(date: .abbreviated, time: .omitted))")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
                 Spacer()
                 if dataset.updatedAt != dataset.createdAt {
                     Text("Updated \(dataset.updatedAt.formatted(date: .abbreviated, time: .omitted))")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
             }
         }
         .padding()
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(AppTheme.surface)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(isHovered ? Color.accentColor.opacity(0.5) : Color.clear, lineWidth: 2)
+                .stroke(isHovered ? AppTheme.primary.opacity(0.5) : Color.clear, lineWidth: 2)
         )
         .opacity(dataset.status.isActive ? 1.0 : 0.7)
         .onHover { hovering in
@@ -398,14 +398,14 @@ struct DatasetStat: View {
         HStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(AppTheme.textSecondary)
             VStack(alignment: .leading, spacing: 0) {
                 Text(value)
                     .font(.subheadline)
                     .fontWeight(.medium)
                 Text(label)
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             }
         }
     }
@@ -436,7 +436,7 @@ struct DatasetDropZone: View {
             .padding(40)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.accentColor.opacity(0.9))
+                    .fill(AppTheme.primary.opacity(0.9))
             )
         }
     }

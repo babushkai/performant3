@@ -70,7 +70,7 @@ struct SettingsView: View {
                             .fontWeight(.medium)
                         Text("Apple Silicon Optimized")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                     }
                     Spacer()
                     Text("Active")
@@ -84,7 +84,7 @@ struct SettingsView: View {
                     Text("GPU Acceleration")
                     Spacer()
                     Text("Metal")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
 
                 HStack {
@@ -93,12 +93,12 @@ struct SettingsView: View {
                     Text("Automatic Differentiation")
                     Spacer()
                     Text("Enabled")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
 
                 Text("Training uses Apple's MLX framework with native Metal GPU acceleration. All gradients are computed using automatic differentiation.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             } header: {
                 HStack {
                     Text("ML Training Backend")
@@ -115,28 +115,28 @@ struct SettingsView: View {
                         Text("Total Size")
                         Spacer()
                         Text(formatBytes(stats.totalSize))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                     }
 
                     HStack {
                         Text("Models")
                         Spacer()
                         Text(formatBytes(stats.modelsSize))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                     }
 
                     HStack {
                         Text("Datasets")
                         Spacer()
                         Text(formatBytes(stats.datasetsSize))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                     }
 
                     HStack {
                         Text("Cache")
                         Spacer()
                         Text(formatBytes(stats.cacheSize))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                     }
                 } else {
                     HStack {
@@ -175,14 +175,14 @@ struct SettingsView: View {
                     Text("Version")
                     Spacer()
                     Text("1.0.0")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
 
                 HStack {
                     Text("Build")
                     Spacer()
                     Text("2024.1")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
             }
 
@@ -199,7 +199,7 @@ struct SettingsView: View {
 
                 Text("Loads sample models, datasets, training runs, and inference results to explore the app features.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             }
 
             // Danger Zone

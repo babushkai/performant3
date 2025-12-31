@@ -27,6 +27,7 @@ struct ContentView: View {
                     SettingsView()
                 }
             }
+            .background(AppTheme.background)
         }
         .overlay {
             if appState.isLoading {
@@ -91,7 +92,7 @@ struct SidebarView: View {
                     if appState.models.isEmpty {
                         Text("No models yet")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textMuted)
                             .padding(.leading, 4)
                     }
                 } label: {
@@ -104,7 +105,7 @@ struct SidebarView: View {
                             Spacer()
                             Text("\(appState.models.count)")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.textMuted)
                         }
                     }
                     .buttonStyle(.plain)
@@ -141,7 +142,7 @@ struct SidebarView: View {
                     if appState.activeRuns.isEmpty && appState.completedRuns.isEmpty {
                         Text("No training runs yet")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textMuted)
                             .padding(.leading, 4)
                     }
                 } label: {
@@ -153,9 +154,12 @@ struct SidebarView: View {
                             Label("Training Runs", systemImage: NavigationTab.runs.icon)
                             Spacer()
                             if !appState.activeRuns.isEmpty {
-                                Text("\(appState.activeRuns.count) active")
-                                    .font(.caption)
-                                    .foregroundColor(.orange)
+                                HStack(spacing: 4) {
+                                    PulsingDot(color: AppTheme.success, size: 6)
+                                    Text("\(appState.activeRuns.count)")
+                                        .font(.caption)
+                                        .foregroundColor(AppTheme.success)
+                                }
                             }
                         }
                     }
@@ -187,6 +191,7 @@ struct SidebarView: View {
         }
         .listStyle(.sidebar)
         .frame(minWidth: 220)
+        .background(AppTheme.background)
         .toolbar {
             ToolbarItemGroup {
                 Menu {
@@ -201,6 +206,7 @@ struct SidebarView: View {
                     }
                 } label: {
                     Image(systemName: "plus")
+                        .foregroundColor(AppTheme.primary)
                 }
             }
         }
@@ -223,11 +229,12 @@ struct SidebarModelRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(model.name)
                     .font(.subheadline)
+                    .foregroundColor(AppTheme.textPrimary)
                     .lineLimit(1)
 
                 Text(model.framework.rawValue)
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textMuted)
             }
 
             Spacer()
@@ -282,7 +289,7 @@ struct SidebarModelRow: View {
             } label: {
                 Label("Train", systemImage: "play.fill")
             }
-            .tint(.green)
+            .tint(AppTheme.success)
         }
         .alert("Delete Model", isPresented: $showDeleteConfirmation) {
             Button("Cancel", role: .cancel) {}
@@ -296,14 +303,14 @@ struct SidebarModelRow: View {
 
     private var statusColor: Color {
         switch model.status {
-        case .ready: return .green
-        case .training: return .orange
-        case .draft: return .gray
-        case .failed: return .red
-        case .archived: return .purple
-        case .importing: return .blue
-        case .deployed: return .teal
-        case .deprecated: return .brown
+        case .ready: return AppTheme.success
+        case .training: return AppTheme.warning
+        case .draft: return AppTheme.textMuted
+        case .failed: return AppTheme.error
+        case .archived: return AppTheme.secondary
+        case .importing: return AppTheme.primary
+        case .deployed: return AppTheme.success
+        case .deprecated: return AppTheme.warning
         }
     }
 }
@@ -333,16 +340,17 @@ struct SidebarRunRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(run.name)
                     .font(.subheadline)
+                    .foregroundColor(AppTheme.textPrimary)
                     .lineLimit(1)
 
                 if isActive {
                     Text("\(Int(run.progress * 100))% - Epoch \(run.currentEpoch)/\(run.totalEpochs)")
                         .font(.caption2)
-                        .foregroundColor(.orange)
+                        .foregroundColor(AppTheme.success)
                 } else {
                     Text(run.status.rawValue)
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textMuted)
                 }
             }
 
@@ -406,14 +414,14 @@ struct SidebarRunRow: View {
                 } label: {
                     Label("Pause", systemImage: "pause.fill")
                 }
-                .tint(.orange)
+                .tint(AppTheme.warning)
             } else if run.status == .paused {
                 Button {
                     appState.resumeTraining(runId: run.id)
                 } label: {
                     Label("Resume", systemImage: "play.fill")
                 }
-                .tint(.green)
+                .tint(AppTheme.success)
             }
         }
         .alert("Delete Run", isPresented: $showDeleteConfirmation) {
@@ -446,11 +454,11 @@ struct SidebarRunRow: View {
 
     private var statusColor: Color {
         switch run.status {
-        case .completed: return .green
-        case .failed: return .red
-        case .cancelled: return .orange
-        case .paused: return .yellow
-        default: return .gray
+        case .completed: return AppTheme.success
+        case .failed: return AppTheme.error
+        case .cancelled: return AppTheme.warning
+        case .paused: return AppTheme.warning
+        default: return AppTheme.textMuted
         }
     }
 }
@@ -462,18 +470,23 @@ struct LoadingOverlay: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.3)
+            AppTheme.background.opacity(0.8)
                 .ignoresSafeArea()
 
             VStack(spacing: 16) {
                 ProgressView()
                     .scaleEffect(1.5)
+                    .tint(AppTheme.primary)
                 Text(message)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             }
             .padding(32)
-            .background(.regularMaterial)
+            .background(AppTheme.surface)
             .cornerRadius(16)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+            )
         }
     }
 }
@@ -487,17 +500,22 @@ struct SuccessToast: View {
         HStack(spacing: 12) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.title2)
-                .foregroundColor(.green)
+                .foregroundColor(AppTheme.success)
 
             Text(message)
                 .font(.subheadline)
                 .fontWeight(.medium)
+                .foregroundColor(AppTheme.textPrimary)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
-        .background(.regularMaterial)
+        .background(AppTheme.surface)
         .cornerRadius(25)
-        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+        .overlay(
+            RoundedRectangle(cornerRadius: 25)
+                .stroke(AppTheme.success.opacity(0.3), lineWidth: 1)
+        )
+        .shadow(color: AppTheme.success.opacity(0.2), radius: 8, x: 0, y: 4)
     }
 }
 
@@ -509,11 +527,10 @@ struct StatusBadge: View {
 
     var body: some View {
         Text(text)
-            .font(.caption)
-            .fontWeight(.medium)
+            .font(.system(size: 10, weight: .medium))
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(color.opacity(0.2))
+            .background(color.opacity(0.15))
             .foregroundColor(color)
             .cornerRadius(4)
     }
@@ -528,24 +545,36 @@ struct StatCard: View {
     let color: Color
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundColor(color)
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.15))
+                        .frame(width: 40, height: 40)
+                    Image(systemName: icon)
+                        .font(.system(size: 18))
+                        .foregroundColor(color)
+                }
                 Spacer()
             }
-            Spacer()
-            Text(value)
-                .font(.system(size: 32, weight: .bold, design: .rounded))
-            Text(title)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(value)
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(AppTheme.textPrimary)
+
+                Text(title)
+                    .font(.system(size: 13))
+                    .foregroundColor(AppTheme.textSecondary)
+            }
         }
-        .padding()
-        .frame(height: 120)
-        .background(Color(NSColor.controlBackgroundColor))
-        .cornerRadius(12)
+        .padding(16)
+        .background(AppTheme.surface)
+        .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.white.opacity(0.05), lineWidth: 1)
+        )
     }
 }
 
@@ -588,12 +617,12 @@ struct EmptyStateView: View {
             // Animated Icon
             ZStack {
                 Circle()
-                    .fill(Color.accentColor.opacity(0.1))
+                    .fill(AppTheme.primary.opacity(0.15))
                     .frame(width: 100, height: 100)
 
                 Image(systemName: icon)
                     .font(.system(size: 44))
-                    .foregroundColor(.accentColor)
+                    .foregroundStyle(AppTheme.primaryGradient)
             }
             .scaleEffect(iconScale)
             .opacity(iconOpacity)
@@ -609,10 +638,11 @@ struct EmptyStateView: View {
                 Text(title)
                     .font(.title2)
                     .fontWeight(.semibold)
+                    .foregroundColor(AppTheme.textPrimary)
 
                 Text(message)
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 350)
             }
@@ -626,15 +656,29 @@ struct EmptyStateView: View {
             // Action Buttons
             HStack(spacing: 12) {
                 if let actionTitle = actionTitle, let action = action {
-                    Button(actionTitle, action: action)
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
+                    Button(action: action) {
+                        Text(actionTitle)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(AppTheme.primaryGradient)
+                            .cornerRadius(10)
+                    }
+                    .buttonStyle(.plain)
                 }
 
                 if let secondaryTitle = secondaryActionTitle, let secondaryAction = secondaryAction {
-                    Button(secondaryTitle, action: secondaryAction)
-                        .buttonStyle(.bordered)
-                        .controlSize(.large)
+                    Button(action: secondaryAction) {
+                        Text(secondaryTitle)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(AppTheme.primary)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(AppTheme.primary.opacity(0.15))
+                            .cornerRadius(10)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             .opacity(buttonsOpacity)
@@ -646,6 +690,7 @@ struct EmptyStateView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(40)
+        .background(AppTheme.background)
     }
 }
 
@@ -668,13 +713,17 @@ struct SectionHeader: View {
         HStack {
             if let icon = icon {
                 Image(systemName: icon)
+                    .foregroundColor(AppTheme.primary)
             }
             Text(title)
                 .font(.headline)
+                .foregroundColor(AppTheme.textPrimary)
             Spacer()
             if let actionLabel = actionLabel, let action = action {
                 Button(actionLabel, action: action)
-                    .buttonStyle(.borderless)
+                    .font(.caption)
+                    .foregroundColor(AppTheme.primary)
+                    .buttonStyle(.plain)
             }
         }
     }

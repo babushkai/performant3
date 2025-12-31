@@ -83,7 +83,7 @@ struct RunsView: View {
                                 }
                             }
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                         }
 
                         Spacer()
@@ -147,19 +147,19 @@ struct RunsView: View {
                     // Search bar
                     HStack {
                         Image(systemName: "magnifyingglass")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                         TextField("Search runs...", text: $searchText)
                             .textFieldStyle(.plain)
                         if !searchText.isEmpty {
                             Button(action: { searchText = "" }) {
                                 Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(AppTheme.textSecondary)
                             }
                             .buttonStyle(.plain)
                         }
                     }
                     .padding(8)
-                    .background(Color(NSColor.controlBackgroundColor))
+                    .background(AppTheme.surface)
                     .cornerRadius(8)
                 }
                 .padding()
@@ -267,7 +267,7 @@ struct RunsView: View {
                 )
             }
         }
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(AppTheme.background)
         .alert("Delete Run", isPresented: $showingDeleteConfirmation) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
@@ -393,7 +393,7 @@ struct FilterButton: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? Color.accentColor : Color.clear)
+            .background(isSelected ? AppTheme.primary : Color.clear)
             .foregroundColor(isSelected ? .white : .primary)
             .cornerRadius(8)
         }
@@ -412,11 +412,11 @@ struct EmptyRunsView: View {
         VStack(spacing: 20) {
             ZStack {
                 Circle()
-                    .fill(Color.accentColor.opacity(0.1))
+                    .fill(AppTheme.primary.opacity(0.1))
                     .frame(width: 80, height: 80)
                 Image(systemName: iconForFilter)
                     .font(.system(size: 36))
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(AppTheme.primary)
             }
 
             VStack(spacing: 8) {
@@ -425,7 +425,7 @@ struct EmptyRunsView: View {
                     .fontWeight(.semibold)
                 Text(subtitleForFilter)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 300)
             }
@@ -439,7 +439,7 @@ struct EmptyRunsView: View {
             } else if filter == .all && !hasModels {
                 Text("Create a model first to start training")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -489,7 +489,7 @@ struct PlaceholderDetailView: View {
                     .frame(width: 80, height: 80)
                 Image(systemName: icon)
                     .font(.system(size: 36))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             }
 
             VStack(spacing: 8) {
@@ -498,7 +498,7 @@ struct PlaceholderDetailView: View {
                     .fontWeight(.medium)
                 Text(subtitle)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 300)
             }
@@ -523,7 +523,7 @@ struct RunListItem: View {
                 Button(action: { onToggleSelection?() }) {
                     Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                         .font(.title3)
-                        .foregroundColor(isSelected ? .accentColor : .secondary)
+                        .foregroundColor(isSelected ? AppTheme.primary : .secondary)
                 }
                 .buttonStyle(.plain)
             }
@@ -553,12 +553,12 @@ struct RunListItem: View {
                 HStack(spacing: 8) {
                     Text(run.modelName)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                         .lineLimit(1)
 
                     if run.status == .running || run.status == .paused {
                         Text("•")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                         Text("Epoch \(run.currentEpoch)/\(run.totalEpochs)")
                             .font(.caption)
                             .foregroundColor(.orange)
@@ -574,11 +574,11 @@ struct RunListItem: View {
                     Text("\(Int(run.progress * 100))%")
                         .font(.system(.caption, design: .monospaced))
                         .fontWeight(.medium)
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(AppTheme.primary)
 
                     ProgressView(value: run.progress)
                         .frame(width: 80)
-                        .tint(run.status == .paused ? .orange : .accentColor)
+                        .tint(run.status == .paused ? .orange : AppTheme.primary)
                 } else if run.status == .completed {
                     if let accuracy = run.accuracy {
                         HStack(spacing: 4) {
@@ -664,9 +664,9 @@ struct RunDetailView: View {
                             .fontWeight(.bold)
                         HStack(spacing: 8) {
                             Text(run.modelName)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.textSecondary)
                             Text("•")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.textSecondary)
                             StatusBadge(text: run.status.rawValue, color: run.status.color)
                         }
                     }
@@ -686,22 +686,22 @@ struct RunDetailView: View {
                 if isActive {
                     VStack(spacing: 4) {
                         ProgressView(value: run.progress)
-                            .tint(run.status == .paused ? .orange : .accentColor)
+                            .tint(run.status == .paused ? .orange : AppTheme.primary)
 
                         HStack {
                             Text("Epoch \(run.currentEpoch) of \(run.totalEpochs)")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.textSecondary)
                             Spacer()
                             Text("\(Int(run.progress * 100))% complete")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.textSecondary)
                         }
                     }
                 }
             }
             .padding()
-            .background(Color(NSColor.controlBackgroundColor))
+            .background(AppTheme.surface)
 
             // Tab selector
             Picker("", selection: $selectedTab) {
@@ -724,7 +724,7 @@ struct RunDetailView: View {
                 }
             }
         }
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(AppTheme.background)
         .alert("Stop Training", isPresented: $showCancelConfirmation) {
             Button("Continue Training", role: .cancel) {}
             Button("Stop", role: .destructive) {
@@ -852,10 +852,10 @@ struct MetricsTableView: View {
                 }
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundColor(.secondary)
+                .foregroundColor(AppTheme.textSecondary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(Color(NSColor.controlBackgroundColor))
+                .background(AppTheme.surface)
 
                 Divider()
 
@@ -870,7 +870,7 @@ struct MetricsTableView: View {
                             .foregroundColor(.green)
                         Text(metric.timestamp.formatted(date: .omitted, time: .shortened))
                             .frame(maxWidth: .infinity, alignment: .trailing)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                     }
                     .font(.system(.caption, design: .monospaced))
                     .padding(.horizontal, 12)
@@ -881,7 +881,7 @@ struct MetricsTableView: View {
                     }
                 }
             }
-            .background(Color(NSColor.controlBackgroundColor))
+            .background(AppTheme.surface)
             .cornerRadius(8)
         }
     }
@@ -903,7 +903,7 @@ struct ConsoleTabContent: View {
                 Spacer()
                 Text("\(logs.count) entries")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
 
                 Button(action: { copyLogs() }) {
                     Image(systemName: "doc.on.doc")
@@ -984,10 +984,10 @@ struct ConsoleView: View {
             VStack {
                 Image(systemName: "terminal")
                     .font(.system(size: 32))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
                 Text("Waiting for output...")
                     .font(.system(.body, design: .monospaced))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black.opacity(0.9))
@@ -999,7 +999,7 @@ struct ConsoleView: View {
                             HStack(alignment: .top, spacing: 8) {
                                 Text(entry.timestamp.formatted(date: .omitted, time: .standard))
                                     .font(.system(.caption, design: .monospaced))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(AppTheme.textSecondary)
                                     .frame(width: 80, alignment: .leading)
 
                                 Text(entry.level.prefix)
@@ -1050,7 +1050,7 @@ struct ConfigSection<Content: View>: View {
                 content
             }
             .padding()
-            .background(Color(NSColor.controlBackgroundColor))
+            .background(AppTheme.surface)
             .cornerRadius(8)
         }
     }
@@ -1063,7 +1063,7 @@ struct ConfigRow: View {
     var body: some View {
         HStack {
             Text(label)
-                .foregroundColor(.secondary)
+                .foregroundColor(AppTheme.textSecondary)
             Spacer()
             Text(value)
                 .textSelection(.enabled)

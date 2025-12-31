@@ -13,7 +13,7 @@ struct InferenceView: View {
             // Right: Results
             InferenceResultsPanel()
         }
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(AppTheme.background)
     }
 }
 
@@ -63,7 +63,7 @@ struct InferenceInputPanel: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
                     Text("Run predictions with your trained models")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
                 Spacer()
             }
@@ -210,7 +210,7 @@ struct StepSection<Content: View>: View {
                 // Step number circle
                 ZStack {
                     Circle()
-                        .fill(isEnabled ? Color.accentColor : Color.secondary.opacity(0.3))
+                        .fill(isEnabled ? AppTheme.primary : Color.secondary.opacity(0.3))
                         .frame(width: 32, height: 32)
                     Text("\(number)")
                         .font(.headline)
@@ -240,7 +240,7 @@ struct NoTrainedModelsView: View {
         VStack(spacing: 16) {
             Image(systemName: "cpu.fill")
                 .font(.system(size: 48))
-                .foregroundColor(.secondary)
+                .foregroundColor(AppTheme.textSecondary)
 
             VStack(spacing: 8) {
                 Text("No Trained Models Yet")
@@ -249,7 +249,7 @@ struct NoTrainedModelsView: View {
                 if completedRuns.isEmpty {
                     Text("Train a model first to use it for inference")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                         .multilineTextAlignment(.center)
 
                     Button(action: { appState.selectedTab = .runs; appState.showNewRunSheet = true }) {
@@ -260,18 +260,18 @@ struct NoTrainedModelsView: View {
                 } else {
                     Text("You have \(completedRuns.count) completed training run(s), but the models haven't been registered yet.")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                         .multilineTextAlignment(.center)
 
                     Text("Try running a new training to see it here.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
             }
         }
         .padding(32)
         .frame(maxWidth: .infinity)
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(AppTheme.surface)
         .cornerRadius(12)
     }
 }
@@ -328,16 +328,16 @@ struct TrainedModelCard: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(model.name)
                             .font(.headline)
-                            .foregroundColor(.primary)
+                            .foregroundColor(AppTheme.textPrimary)
 
                         HStack(spacing: 8) {
                             Label(architectureType, systemImage: architectureIcon)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.textSecondary)
 
                             if model.accuracy > 0 {
                                 Text("•")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(AppTheme.textSecondary)
                                 Text(String(format: "%.1f%% accuracy", model.accuracy * 100))
                                     .font(.caption)
                                     .foregroundColor(.green)
@@ -350,12 +350,12 @@ struct TrainedModelCard: View {
                     // Selection indicator
                     ZStack {
                         Circle()
-                            .stroke(isSelected ? Color.accentColor : Color.secondary.opacity(0.3), lineWidth: 2)
+                            .stroke(isSelected ? AppTheme.primary : Color.secondary.opacity(0.3), lineWidth: 2)
                             .frame(width: 24, height: 24)
 
                         if isSelected {
                             Circle()
-                                .fill(Color.accentColor)
+                                .fill(AppTheme.primary)
                                 .frame(width: 16, height: 16)
                         }
                     }
@@ -368,7 +368,7 @@ struct TrainedModelCard: View {
                         Text("Classes (\(numClasses))")
                             .font(.caption)
                             .fontWeight(.medium)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
 
                         FlowLayout(spacing: 6) {
                             ForEach(classLabels, id: \.self) { label in
@@ -376,8 +376,8 @@ struct TrainedModelCard: View {
                                     .font(.caption2)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
-                                    .background(Color.accentColor.opacity(0.15))
-                                    .foregroundColor(.accentColor)
+                                    .background(AppTheme.primary.opacity(0.15))
+                                    .foregroundColor(AppTheme.primary)
                                     .cornerRadius(6)
                             }
                         }
@@ -387,10 +387,10 @@ struct TrainedModelCard: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(NSColor.controlBackgroundColor))
+                    .fill(AppTheme.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
+                            .stroke(isSelected ? AppTheme.primary : Color.clear, lineWidth: 2)
                     )
             )
         }
@@ -453,11 +453,11 @@ struct ImageDropZone: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(NSColor.controlBackgroundColor))
+                .fill(AppTheme.surface)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(
-                            isDragging ? Color.accentColor : Color.secondary.opacity(0.3),
+                            isDragging ? AppTheme.primary : Color.secondary.opacity(0.3),
                             style: StrokeStyle(lineWidth: 2, dash: selectedImage == nil ? [8] : [])
                         )
                 )
@@ -477,7 +477,7 @@ struct ImageDropZone: View {
                                 .foregroundColor(.green)
                             Text(url.lastPathComponent)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.textSecondary)
                         }
                         Spacer()
                         Button("Change") { selectImage() }
@@ -496,15 +496,15 @@ struct ImageDropZone: View {
                 VStack(spacing: 12) {
                     Image(systemName: isDragging ? "arrow.down.circle.fill" : "photo.on.rectangle.angled")
                         .font(.system(size: 48))
-                        .foregroundColor(isDragging ? .accentColor : .secondary)
+                        .foregroundColor(isDragging ? AppTheme.primary : .secondary)
 
                     VStack(spacing: 4) {
                         Text(isDragging ? "Drop Image Here" : "Drag & Drop Image")
                             .font(.headline)
-                            .foregroundColor(isDragging ? .accentColor : .primary)
+                            .foregroundColor(isDragging ? AppTheme.primary : .primary)
                         Text("or click to browse")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                     }
 
                     Button("Browse Files") { selectImage() }
@@ -574,7 +574,7 @@ struct InferenceResultsPanel: View {
                 if !appState.inferenceHistory.isEmpty {
                     Text("\(appState.inferenceHistory.count) predictions")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
             }
             .padding()
@@ -586,13 +586,13 @@ struct InferenceResultsPanel: View {
                 VStack(spacing: 16) {
                     Image(systemName: "wand.and.stars")
                         .font(.system(size: 48))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                     Text("No predictions yet")
                         .font(.headline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                     Text("Run inference to see results here")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -640,7 +640,7 @@ struct InferenceResultRow: View {
                         .fontWeight(.medium)
                     Text(String(format: "%.1f%% confidence", top.confidence * 100))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
             }
 
@@ -652,7 +652,7 @@ struct InferenceResultRow: View {
                     .monospacedDigit()
                 Text(result.timestamp.formatted(date: .omitted, time: .shortened))
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             }
         }
         .padding(.vertical, 4)
@@ -676,7 +676,7 @@ struct InferenceResultDetail: View {
                     Spacer()
                     Text(String(format: "%.1f%%", prediction.confidence * 100))
                         .monospacedDigit()
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
 
                 ProgressView(value: prediction.confidence)
@@ -691,9 +691,9 @@ struct InferenceResultDetail: View {
                 Label(result.timestamp.formatted(), systemImage: "calendar")
             }
             .font(.caption)
-            .foregroundColor(.secondary)
+            .foregroundColor(AppTheme.textSecondary)
         }
         .padding()
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(AppTheme.surface)
     }
 }

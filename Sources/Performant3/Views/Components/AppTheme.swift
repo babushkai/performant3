@@ -104,12 +104,13 @@ enum AppTheme {
 
 struct PulsingDot: View {
     let color: Color
+    var size: CGFloat = 8
     @State private var isPulsing = false
 
     var body: some View {
         Circle()
             .fill(color)
-            .frame(width: 8, height: 8)
+            .frame(width: size, height: size)
             .overlay(
                 Circle()
                     .stroke(color.opacity(0.5), lineWidth: 2)

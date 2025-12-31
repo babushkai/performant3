@@ -76,7 +76,7 @@ struct ModelsView: View {
                             }
                         }
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                     }
 
                     Spacer()
@@ -145,19 +145,19 @@ struct ModelsView: View {
                     // Search bar
                     HStack {
                         Image(systemName: "magnifyingglass")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                         TextField("Search models...", text: $searchText)
                             .textFieldStyle(.plain)
                         if !searchText.isEmpty {
                             Button(action: { searchText = "" }) {
                                 Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(AppTheme.textSecondary)
                             }
                             .buttonStyle(.plain)
                         }
                     }
                     .padding(8)
-                    .background(Color(NSColor.controlBackgroundColor))
+                    .background(AppTheme.surface)
                     .cornerRadius(8)
 
                     Picker("Framework", selection: $selectedFramework) {
@@ -244,7 +244,7 @@ struct ModelsView: View {
                 }
             }
         }
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(AppTheme.background)
         .alert("Delete Model", isPresented: $showingDeleteConfirmation) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
@@ -380,11 +380,11 @@ struct EmptyModelsView: View {
         VStack(spacing: 20) {
             ZStack {
                 Circle()
-                    .fill(Color.accentColor.opacity(0.1))
+                    .fill(AppTheme.primary.opacity(0.1))
                     .frame(width: 80, height: 80)
                 Image(systemName: hasModels ? "magnifyingglass" : "cpu")
                     .font(.system(size: 36))
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(AppTheme.primary)
             }
 
             VStack(spacing: 8) {
@@ -393,7 +393,7 @@ struct EmptyModelsView: View {
                     .fontWeight(.semibold)
                 Text(hasModels ? "Try adjusting your search or filters" : "Import a model or create one to start training")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 300)
             }
@@ -440,7 +440,7 @@ struct ModelCard: View {
                     Button(action: { onToggleSelection?() }) {
                         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                             .font(.title3)
-                            .foregroundColor(isSelected ? .accentColor : .secondary)
+                            .foregroundColor(isSelected ? AppTheme.primary : .secondary)
                     }
                     .buttonStyle(.plain)
                 }
@@ -475,7 +475,7 @@ struct ModelCard: View {
                         }
                     }
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
                 }
 
                 Spacer()
@@ -550,7 +550,7 @@ struct ModelCard: View {
                                 .scaleEffect(0.7)
                             Text("Loading model info...")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.textSecondary)
                         }
                     } else if let info = modelInfo {
                         LazyVGrid(columns: [
@@ -567,7 +567,7 @@ struct ModelCard: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Description")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(AppTheme.textSecondary)
                                 Text(info.description)
                                     .font(.caption)
                             }
@@ -580,12 +580,12 @@ struct ModelCard: View {
                             Text("Metadata")
                                 .font(.caption)
                                 .fontWeight(.medium)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.textSecondary)
                             ForEach(Array(model.metadata.keys.sorted()), id: \.self) { key in
                                 HStack {
                                     Text(key)
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(AppTheme.textSecondary)
                                     Spacer()
                                     Text(model.metadata[key] ?? "")
                                         .font(.caption)
@@ -603,20 +603,20 @@ struct ModelCard: View {
                         Label("Updated \(model.updatedAt.formatted(date: .abbreviated, time: .shortened))", systemImage: "clock")
                     }
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
                 }
                 .padding()
-                .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+                .background(AppTheme.surface.opacity(0.5))
             }
         }
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(NSColor.controlBackgroundColor))
+                .fill(AppTheme.surface)
                 .shadow(color: isHovered ? .black.opacity(0.1) : .clear, radius: 4, x: 0, y: 2)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
+                .stroke(isSelected ? AppTheme.primary : Color.clear, lineWidth: 2)
         )
         .onHover { hovering in
             withAnimation(.easeInOut(duration: 0.15)) {
@@ -663,7 +663,7 @@ struct DetailItem: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(label)
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(AppTheme.textSecondary)
             Text(value)
                 .font(.caption)
                 .lineLimit(2)
@@ -682,7 +682,7 @@ struct DetailRow: View {
         HStack(alignment: .top) {
             Text(label)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(AppTheme.textSecondary)
                 .frame(width: 80, alignment: .leading)
             Text(value)
                 .font(.caption)
@@ -700,22 +700,22 @@ struct ModelDropZone: View {
         VStack(spacing: 16) {
             ZStack {
                 Circle()
-                    .fill(isDragging ? Color.accentColor.opacity(0.2) : Color.secondary.opacity(0.1))
+                    .fill(isDragging ? AppTheme.primary.opacity(0.2) : Color.secondary.opacity(0.1))
                     .frame(width: 80, height: 80)
                 Image(systemName: isDragging ? "arrow.down.doc.fill" : "arrow.down.doc")
                     .font(.system(size: 36))
-                    .foregroundColor(isDragging ? .accentColor : .secondary)
+                    .foregroundColor(isDragging ? AppTheme.primary : .secondary)
             }
             .animation(.easeInOut(duration: 0.2), value: isDragging)
 
             VStack(spacing: 4) {
                 Text(isDragging ? "Drop to Import" : "Drag & Drop Model Here")
                     .font(.headline)
-                    .foregroundColor(isDragging ? .accentColor : .primary)
+                    .foregroundColor(isDragging ? AppTheme.primary : .primary)
 
                 Text("Supports .mlmodel, .mlmodelc, .mlpackage, .safetensors files")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             }
         }
         .frame(maxWidth: .infinity)
@@ -723,12 +723,12 @@ struct ModelDropZone: View {
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .strokeBorder(
-                    isDragging ? Color.accentColor : Color.secondary.opacity(0.3),
+                    isDragging ? AppTheme.primary : Color.secondary.opacity(0.3),
                     style: StrokeStyle(lineWidth: 2, dash: [8])
                 )
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(isDragging ? Color.accentColor.opacity(0.1) : Color.clear)
+                        .fill(isDragging ? AppTheme.primary.opacity(0.1) : Color.clear)
                 )
         )
         .onDrop(of: [.fileURL], isTargeted: $isDragging) { providers in
