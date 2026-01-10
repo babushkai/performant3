@@ -28,6 +28,13 @@ struct InferenceInputPanel: View {
     @State private var errorMessage: String?
     @State private var isDraggingImage = false
 
+    // Batch inference
+    @State private var batchMode = false
+    @State private var batchImageURLs: [URL] = []
+    @State private var batchProgress: Double = 0
+    @State private var batchResults: [BatchInferenceResult] = []
+    @State private var showBatchResults = false
+
     var selectedModel: MLModel? {
         selectedModelId.flatMap { id in appState.models.first { $0.id == id } }
     }
@@ -40,17 +47,25 @@ struct InferenceInputPanel: View {
         appState.runs.filter { $0.status == .completed }
     }
 
+    var canRunInference: Bool {
+        if batchMode {
+            return selectedModelId != nil && !batchImageURLs.isEmpty && !isRunning
+        } else {
+            return selectedModelId != nil && selectedImageURL != nil && !isRunning
+        }
+    }
+
     var inferenceButtonHelpText: String {
         if isRunning {
-            return "Inference in progress..."
-        } else if selectedModelId == nil && selectedImageURL == nil {
-            return "Select a model and an image to run inference"
+            return batchMode ? "Batch inference in progress..." : "Inference in progress..."
+        } else if selectedModelId == nil && (batchMode ? batchImageURLs.isEmpty : selectedImageURL == nil) {
+            return "Select a model and \(batchMode ? "images" : "an image") to run inference"
         } else if selectedModelId == nil {
             return "Select a model to run inference"
-        } else if selectedImageURL == nil {
-            return "Select an image to run inference"
+        } else if batchMode ? batchImageURLs.isEmpty : selectedImageURL == nil {
+            return "Select \(batchMode ? "images" : "an image") to run inference"
         } else {
-            return "Run inference with the selected model"
+            return batchMode ? "Run batch inference on \(batchImageURLs.count) images" : "Run inference with the selected model"
         }
     }
 
@@ -104,55 +119,98 @@ struct InferenceInputPanel: View {
                         }
                     }
 
-                    // STEP 2: Select Image (only enabled if model selected)
+                    // STEP 2: Select Image(s) (only enabled if model selected)
                     StepSection(
                         number: 2,
-                        title: "Select Input Image",
+                        title: batchMode ? "Select Input Images" : "Select Input Image",
                         isEnabled: selectedModelId != nil
                     ) {
-                        ImageDropZone(
-                            selectedImage: $selectedImage,
-                            selectedImageURL: $selectedImageURL,
-                            isDragging: $isDraggingImage,
-                            isEnabled: selectedModelId != nil
-                        )
+                        VStack(alignment: .leading, spacing: 12) {
+                            // Batch mode toggle
+                            HStack {
+                                Toggle(isOn: $batchMode) {
+                                    Label("Batch Mode", systemImage: "square.stack.3d.up")
+                                }
+                                .toggleStyle(.switch)
+
+                                if batchMode && !batchImageURLs.isEmpty {
+                                    Text("\(batchImageURLs.count) images selected")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+
+                                Spacer()
+
+                                if batchMode && !batchImageURLs.isEmpty {
+                                    Button(action: { batchImageURLs.removeAll() }) {
+                                        Label("Clear", systemImage: "xmark.circle")
+                                    }
+                                    .buttonStyle(.borderless)
+                                }
+                            }
+
+                            if batchMode {
+                                // Batch image selection
+                                BatchImageSelector(
+                                    selectedURLs: $batchImageURLs,
+                                    isDragging: $isDraggingImage,
+                                    isEnabled: selectedModelId != nil
+                                )
+                            } else {
+                                // Single image selection
+                                ImageDropZone(
+                                    selectedImage: $selectedImage,
+                                    selectedImageURL: $selectedImageURL,
+                                    isDragging: $isDraggingImage,
+                                    isEnabled: selectedModelId != nil
+                                )
+                            }
+                        }
                     }
 
                     // STEP 3: Run Inference
                     StepSection(
                         number: 3,
-                        title: "Run Prediction",
-                        isEnabled: selectedModelId != nil && selectedImageURL != nil
+                        title: batchMode ? "Run Batch Prediction" : "Run Prediction",
+                        isEnabled: canRunInference
                     ) {
-                        Button(action: runInference) {
-                            HStack(spacing: 12) {
-                                if isRunning {
-                                    ProgressView()
-                                        .scaleEffect(0.8)
-                                } else {
-                                    Image(systemName: "play.fill")
-                                        .font(.title2)
-                                }
-                                VStack(alignment: .leading) {
-                                    Text(isRunning ? "Running..." : "Run Inference")
-                                        .font(.headline)
-                                    if let model = selectedModel {
-                                        Text("Using \(model.name)")
-                                            .font(.caption)
-                                            .opacity(0.8)
+                        VStack(spacing: 12) {
+                            Button(action: batchMode ? runBatchInference : runInference) {
+                                HStack(spacing: 12) {
+                                    if isRunning {
+                                        ProgressView()
+                                            .scaleEffect(0.8)
+                                    } else {
+                                        Image(systemName: batchMode ? "play.rectangle.on.rectangle.fill" : "play.fill")
+                                            .font(.title2)
                                     }
+                                    VStack(alignment: .leading) {
+                                        Text(isRunning ? (batchMode ? "Processing \(Int(batchProgress * 100))%..." : "Running...") : (batchMode ? "Run Batch Inference" : "Run Inference"))
+                                            .font(.headline)
+                                        if let model = selectedModel {
+                                            Text(batchMode ? "\(batchImageURLs.count) images • \(model.name)" : "Using \(model.name)")
+                                                .font(.caption)
+                                                .opacity(0.8)
+                                        }
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
                                 }
-                                Spacer()
-                                Image(systemName: "chevron.right")
+                                .padding()
+                                .frame(maxWidth: .infinity)
                             }
-                            .padding()
-                            .frame(maxWidth: .infinity)
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.large)
+                            .disabled(!canRunInference)
+                            .keyboardShortcut("r", modifiers: .command)
+                            .help(inferenceButtonHelpText + " (⌘R)")
+
+                            // Progress bar for batch inference
+                            if isRunning && batchMode {
+                                ProgressView(value: batchProgress)
+                                    .progressViewStyle(.linear)
+                            }
                         }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
-                        .disabled(selectedModelId == nil || selectedImageURL == nil || isRunning)
-                        .keyboardShortcut("r", modifiers: .command)
-                        .help(inferenceButtonHelpText + " (⌘R)")
                     }
 
                     // Error Message
@@ -188,6 +246,9 @@ struct InferenceInputPanel: View {
                 selectedModelId = modelId
             }
         }
+        .sheet(isPresented: $showBatchResults) {
+            BatchResultsSheet(results: batchResults, modelName: selectedModel?.name ?? "Model")
+        }
     }
 
     private func runInference() {
@@ -204,6 +265,391 @@ struct InferenceInputPanel: View {
             }
             isRunning = false
         }
+    }
+
+    private func runBatchInference() {
+        guard let model = selectedModel, !batchImageURLs.isEmpty else { return }
+
+        isRunning = true
+        errorMessage = nil
+        batchProgress = 0
+        batchResults = []
+
+        Task {
+            var results: [BatchInferenceResult] = []
+            let total = batchImageURLs.count
+
+            for (index, imageURL) in batchImageURLs.enumerated() {
+                do {
+                    let result = try await appState.runInference(model: model, imageURL: imageURL)
+                    let topPrediction = result.predictions.first
+                    results.append(BatchInferenceResult(
+                        imageURL: imageURL,
+                        imageName: imageURL.lastPathComponent,
+                        prediction: topPrediction?.label ?? "Unknown",
+                        confidence: topPrediction?.confidence ?? 0,
+                        allPredictions: result.predictions,
+                        success: true,
+                        errorMessage: nil
+                    ))
+                } catch {
+                    results.append(BatchInferenceResult(
+                        imageURL: imageURL,
+                        imageName: imageURL.lastPathComponent,
+                        prediction: "Error",
+                        confidence: 0,
+                        allPredictions: [],
+                        success: false,
+                        errorMessage: error.localizedDescription
+                    ))
+                }
+
+                await MainActor.run {
+                    batchProgress = Double(index + 1) / Double(total)
+                }
+            }
+
+            await MainActor.run {
+                batchResults = results
+                showBatchResults = true
+                isRunning = false
+            }
+        }
+    }
+}
+
+// MARK: - Batch Inference Result
+
+struct BatchInferenceResult: Identifiable {
+    let id = UUID()
+    let imageURL: URL
+    let imageName: String
+    let prediction: String
+    let confidence: Double
+    let allPredictions: [Prediction]
+    let success: Bool
+    let errorMessage: String?
+}
+
+// MARK: - Batch Image Selector
+
+struct BatchImageSelector: View {
+    @Binding var selectedURLs: [URL]
+    @Binding var isDragging: Bool
+    var isEnabled: Bool
+
+    var body: some View {
+        VStack(spacing: 12) {
+            // Drop zone / Add button area
+            ZStack {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(AppTheme.surface)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(
+                                isDragging ? Color.accentColor : Color.secondary.opacity(0.3),
+                                style: StrokeStyle(lineWidth: 2, dash: [8])
+                            )
+                    )
+                    .frame(height: selectedURLs.isEmpty ? 120 : 80)
+
+                VStack(spacing: 8) {
+                    Image(systemName: isDragging ? "arrow.down.doc.fill" : "photo.stack")
+                        .font(.system(size: isDragging ? 32 : 24))
+                        .foregroundColor(isDragging ? .accentColor : .secondary)
+
+                    if selectedURLs.isEmpty {
+                        Text("Drop images here or click to select")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("Drop more images or click to add")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .onTapGesture {
+                selectImages()
+            }
+            .onDrop(of: [.fileURL], isTargeted: $isDragging) { providers in
+                handleDrop(providers: providers)
+                return true
+            }
+
+            // Selected images list
+            if !selectedURLs.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Selected Images")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("\(selectedURLs.count) total")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+
+                    ScrollView {
+                        LazyVStack(spacing: 4) {
+                            ForEach(selectedURLs, id: \.absoluteString) { url in
+                                HStack(spacing: 8) {
+                                    // Thumbnail
+                                    if let image = NSImage(contentsOf: url) {
+                                        Image(nsImage: image)
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 32, height: 32)
+                                            .cornerRadius(4)
+                                            .clipped()
+                                    } else {
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(width: 32, height: 32)
+                                    }
+
+                                    Text(url.lastPathComponent)
+                                        .font(.caption)
+                                        .lineLimit(1)
+                                        .truncationMode(.middle)
+
+                                    Spacer()
+
+                                    Button(action: {
+                                        selectedURLs.removeAll { $0 == url }
+                                    }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.secondary.opacity(0.1))
+                                .cornerRadius(6)
+                            }
+                        }
+                    }
+                    .frame(maxHeight: 150)
+                }
+            }
+        }
+        .opacity(isEnabled ? 1 : 0.5)
+        .allowsHitTesting(isEnabled)
+    }
+
+    private func selectImages() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = true
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        panel.allowedContentTypes = [.image, .png, .jpeg]
+        panel.message = "Select images for batch inference"
+
+        if panel.runModal() == .OK {
+            selectedURLs.append(contentsOf: panel.urls.filter { url in
+                !selectedURLs.contains(url)
+            })
+        }
+    }
+
+    private func handleDrop(providers: [NSItemProvider]) {
+        for provider in providers {
+            provider.loadItem(forTypeIdentifier: "public.file-url", options: nil) { item, _ in
+                guard let data = item as? Data,
+                      let url = URL(dataRepresentation: data, relativeTo: nil),
+                      ["png", "jpg", "jpeg", "gif", "bmp", "tiff"].contains(url.pathExtension.lowercased()) else {
+                    return
+                }
+
+                DispatchQueue.main.async {
+                    if !selectedURLs.contains(url) {
+                        selectedURLs.append(url)
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Batch Results Sheet
+
+struct BatchResultsSheet: View {
+    @Environment(\.dismiss) var dismiss
+    let results: [BatchInferenceResult]
+    let modelName: String
+
+    var successCount: Int {
+        results.filter { $0.success }.count
+    }
+
+    var errorCount: Int {
+        results.filter { !$0.success }.count
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Batch Inference Results")
+                        .font(.title2)
+                        .fontWeight(.bold)
+
+                    HStack(spacing: 16) {
+                        Label("\(results.count) images", systemImage: "photo.stack")
+                        Label("\(successCount) success", systemImage: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        if errorCount > 0 {
+                            Label("\(errorCount) failed", systemImage: "exclamationmark.triangle.fill")
+                                .foregroundColor(.red)
+                        }
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                Button(action: { dismiss() }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding()
+
+            Divider()
+
+            // Results table
+            List {
+                ForEach(results) { result in
+                    BatchResultRow(result: result)
+                }
+            }
+            .listStyle(.inset)
+
+            Divider()
+
+            // Footer with export
+            HStack {
+                Button(action: exportToCSV) {
+                    Label("Export CSV", systemImage: "square.and.arrow.up")
+                }
+
+                Button(action: exportToJSON) {
+                    Label("Export JSON", systemImage: "doc.text")
+                }
+
+                Spacer()
+
+                Button("Done") { dismiss() }
+                    .buttonStyle(.borderedProminent)
+            }
+            .padding()
+        }
+        .frame(width: 700, height: 500)
+    }
+
+    private func exportToCSV() {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "batch_inference_results.csv"
+        panel.allowedContentTypes = [.commaSeparatedText]
+
+        if panel.runModal() == .OK, let url = panel.url {
+            var csv = "Image,Prediction,Confidence,Success,Error\n"
+            for result in results {
+                let escapedName = result.imageName.replacingOccurrences(of: ",", with: ";")
+                let error = result.errorMessage?.replacingOccurrences(of: ",", with: ";") ?? ""
+                csv += "\(escapedName),\(result.prediction),\(String(format: "%.4f", result.confidence)),\(result.success),\(error)\n"
+            }
+            try? csv.write(to: url, atomically: true, encoding: .utf8)
+        }
+    }
+
+    private func exportToJSON() {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "batch_inference_results.json"
+        panel.allowedContentTypes = [.json]
+
+        if panel.runModal() == .OK, let url = panel.url {
+            let exportData = results.map { result in
+                [
+                    "image": result.imageName,
+                    "prediction": result.prediction,
+                    "confidence": result.confidence,
+                    "success": result.success,
+                    "error": result.errorMessage ?? ""
+                ] as [String: Any]
+            }
+
+            if let jsonData = try? JSONSerialization.data(withJSONObject: exportData, options: .prettyPrinted) {
+                try? jsonData.write(to: url)
+            }
+        }
+    }
+}
+
+// MARK: - Batch Result Row
+
+struct BatchResultRow: View {
+    let result: BatchInferenceResult
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // Thumbnail
+            if let image = NSImage(contentsOf: result.imageURL) {
+                Image(nsImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 40, height: 40)
+                    .cornerRadius(6)
+                    .clipped()
+            } else {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 40, height: 40)
+            }
+
+            // Image name
+            VStack(alignment: .leading, spacing: 2) {
+                Text(result.imageName)
+                    .font(.subheadline)
+                    .lineLimit(1)
+
+                if !result.success, let error = result.errorMessage {
+                    Text(error)
+                        .font(.caption2)
+                        .foregroundColor(.red)
+                        .lineLimit(1)
+                }
+            }
+
+            Spacer()
+
+            // Prediction
+            if result.success {
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(result.prediction)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+
+                    Text(String(format: "%.1f%%", result.confidence * 100))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                // Confidence bar
+                ProgressView(value: result.confidence)
+                    .frame(width: 60)
+                    .tint(result.confidence > 0.7 ? .green : result.confidence > 0.4 ? .orange : .red)
+            } else {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(.red)
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 

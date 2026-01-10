@@ -15,6 +15,8 @@ struct ModelsView: View {
     @State private var isSelectionMode = false
     @State private var showCreateWizard = false
     @State private var showArchiveFilter = false
+    @State private var showExportSheet = false
+    @State private var modelToExport: MLModel?
 
     var filteredModels: [MLModel] {
         var models = appState.models
@@ -298,6 +300,15 @@ struct ModelsView: View {
             ModelCreationWizard()
                 .environmentObject(appState)
         }
+        .sheet(isPresented: $showExportSheet) {
+            if let model = modelToExport {
+                ModelExportView(
+                    modelPath: model.filePath ?? "",
+                    modelName: model.name,
+                    architecture: ArchitectureType(rawValue: model.metadata["architecture"] ?? "cnn") ?? .cnn
+                )
+            }
+        }
     }
 
     @ViewBuilder
@@ -368,15 +379,24 @@ struct ModelsView: View {
     }
 
     private func exportModel(_ model: MLModel) {
-        let panel = NSSavePanel()
-        panel.allowedContentTypes = [.init(filenameExtension: "mlmodel")!]
-        panel.nameFieldStringValue = "\(model.name).mlmodel"
+        // Check if model has a file path for export
+        guard model.filePath != nil else {
+            // Show alert or fallback to legacy export
+            let panel = NSSavePanel()
+            panel.allowedContentTypes = [.init(filenameExtension: "mlmodel")!]
+            panel.nameFieldStringValue = "\(model.name).mlmodel"
 
-        if panel.runModal() == .OK, let url = panel.url {
-            Task {
-                try? await appState.exportModel(model, to: url)
+            if panel.runModal() == .OK, let url = panel.url {
+                Task {
+                    try? await appState.exportModel(model, to: url)
+                }
             }
+            return
         }
+
+        // Show the full export view with format options
+        modelToExport = model
+        showExportSheet = true
     }
 
     private func startTrainingWithModel(_ model: MLModel) {

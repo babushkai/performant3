@@ -163,6 +163,9 @@ struct TrainingRunRecord: Codable, FetchableRecord, PersistableRecord, Identifia
     var learningRate: Double
     var loss: Double?
     var accuracy: Double?
+    var precision: Double?
+    var recall: Double?
+    var f1Score: Double?
     var startedAt: Double
     var finishedAt: Double?
     var errorMessage: String?
@@ -170,13 +173,14 @@ struct TrainingRunRecord: Codable, FetchableRecord, PersistableRecord, Identifia
     var architectureType: String
 
     enum CodingKeys: String, CodingKey {
-        case id, name, status, progress, loss, accuracy, config
+        case id, name, status, progress, loss, accuracy, precision, recall, config
         case experimentId = "experiment_id"
         case modelId = "model_id"
         case currentEpoch = "current_epoch"
         case totalEpochs = "total_epochs"
         case batchSize = "batch_size"
         case learningRate = "learning_rate"
+        case f1Score = "f1_score"
         case startedAt = "started_at"
         case finishedAt = "finished_at"
         case errorMessage = "error_message"
@@ -196,6 +200,9 @@ struct TrainingRunRecord: Codable, FetchableRecord, PersistableRecord, Identifia
         self.learningRate = run.learningRate
         self.loss = run.loss
         self.accuracy = run.accuracy
+        self.precision = run.precision
+        self.recall = run.recall
+        self.f1Score = run.f1Score
         self.startedAt = run.startedAt.timeIntervalSince1970
         self.finishedAt = run.finishedAt?.timeIntervalSince1970
         self.architectureType = run.architectureType
@@ -231,6 +238,9 @@ struct TrainingRunRecord: Codable, FetchableRecord, PersistableRecord, Identifia
         run.currentEpoch = currentEpoch
         run.loss = loss
         run.accuracy = accuracy
+        run.precision = precision
+        run.recall = recall
+        run.f1Score = f1Score
         run.finishedAt = finishedAt.map { Date(timeIntervalSince1970: $0) }
         return run
     }

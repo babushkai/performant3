@@ -1,8 +1,55 @@
 import SwiftUI
 
-// MARK: - Experiment Browser View
+// MARK: - Experiments Tab Container
 
 struct ExperimentBrowserView: View {
+    @State private var selectedMode: ExperimentsMode = .browser
+
+    enum ExperimentsMode: String, CaseIterable {
+        case browser = "Experiments"
+        case tuning = "Hyperparameter Tuning"
+
+        var icon: String {
+            switch self {
+            case .browser: return "flask"
+            case .tuning: return "slider.horizontal.3"
+            }
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Mode selector
+            HStack {
+                Picker("Mode", selection: $selectedMode) {
+                    ForEach(ExperimentsMode.allCases, id: \.self) { mode in
+                        Label(mode.rawValue, systemImage: mode.icon).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .frame(maxWidth: 400)
+
+                Spacer()
+            }
+            .padding()
+            .background(AppTheme.background)
+
+            Divider()
+
+            // Content
+            switch selectedMode {
+            case .browser:
+                ExperimentBrowserContent()
+            case .tuning:
+                HyperparameterTuningView()
+            }
+        }
+    }
+}
+
+// MARK: - Experiment Browser Content
+
+struct ExperimentBrowserContent: View {
     @EnvironmentObject var appState: AppState
     @State private var projects: [ProjectRecord] = []
     @State private var selectedProjectId: String?

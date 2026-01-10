@@ -638,6 +638,8 @@ struct RunDetailView: View {
     @State private var selectedTab: DetailTab = .training
     @State private var showCancelConfirmation = false
     @State private var showDeleteConfirmation = false
+    @State private var showExportSheet = false
+    @State private var checkpointPath: String?
 
     enum DetailTab: String, CaseIterable {
         case training = "Training"
@@ -752,6 +754,15 @@ struct RunDetailView: View {
         } message: {
             Text("Are you sure you want to delete this run? This cannot be undone.")
         }
+        .sheet(isPresented: $showExportSheet) {
+            if let path = checkpointPath {
+                ModelExportView(
+                    modelPath: path,
+                    modelName: run.name.replacingOccurrences(of: " ", with: "_"),
+                    architecture: ArchitectureType(rawValue: run.architectureType) ?? .cnn
+                )
+            }
+        }
     }
 
     @ViewBuilder
@@ -802,20 +813,9 @@ struct RunDetailView: View {
                 return
             }
 
-            let panel = NSSavePanel()
-            panel.title = "Export Trained Model"
-            panel.nameFieldStringValue = "\(run.name.replacingOccurrences(of: " ", with: "_")).safetensors"
-            panel.allowedContentTypes = [.data]
-            panel.canCreateDirectories = true
-
-            if panel.runModal() == .OK, let url = panel.url {
-                do {
-                    let sourceURL = URL(fileURLWithPath: checkpoint.path)
-                    try FileManager.default.copyItem(at: sourceURL, to: url)
-                    appState.showSuccess("Model exported successfully")
-                } catch {
-                    appState.errorMessage = "Export failed: \(error.localizedDescription)"
-                }
+            await MainActor.run {
+                checkpointPath = checkpoint.path
+                showExportSheet = true
             }
         }
     }
@@ -977,6 +977,23 @@ struct ConfigTabContent: View {
                             ConfigRow(label: "Final Accuracy", value: String(format: "%.2f%%", accuracy * 100))
                         }
                         ConfigRow(label: "Total Duration", value: run.duration)
+                    }
+
+                    ConfigSection(title: "Extended Metrics") {
+                        if let precision = run.precision {
+                            ConfigRow(label: "Precision", value: String(format: "%.2f%%", precision * 100))
+                        }
+                        if let recall = run.recall {
+                            ConfigRow(label: "Recall", value: String(format: "%.2f%%", recall * 100))
+                        }
+                        if let f1Score = run.f1Score {
+                            ConfigRow(label: "F1 Score", value: String(format: "%.2f%%", f1Score * 100))
+                        }
+                        if run.precision == nil && run.recall == nil && run.f1Score == nil {
+                            Text("Extended metrics not available for this run")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
             }

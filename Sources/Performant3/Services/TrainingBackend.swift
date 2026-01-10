@@ -30,8 +30,25 @@ struct TrainingProgress: Sendable {
     let totalSteps: Int?
     let loss: Double
     let accuracy: Double?
+    let precision: Double?
+    let recall: Double?
+    let f1Score: Double?
     let learningRate: Double?
     let message: String?
+
+    init(epoch: Int, totalEpochs: Int, step: Int? = nil, totalSteps: Int? = nil, loss: Double, accuracy: Double? = nil, precision: Double? = nil, recall: Double? = nil, f1Score: Double? = nil, learningRate: Double? = nil, message: String? = nil) {
+        self.epoch = epoch
+        self.totalEpochs = totalEpochs
+        self.step = step
+        self.totalSteps = totalSteps
+        self.loss = loss
+        self.accuracy = accuracy
+        self.precision = precision
+        self.recall = recall
+        self.f1Score = f1Score
+        self.learningRate = learningRate
+        self.message = message
+    }
 
     var progress: Double {
         let epochProgress = Double(epoch) / Double(totalEpochs)
@@ -49,6 +66,9 @@ struct TrainingProgress: Sendable {
 struct TrainingResult: Sendable {
     let finalLoss: Double
     let finalAccuracy: Double?
+    let finalPrecision: Double?
+    let finalRecall: Double?
+    let finalF1Score: Double?
     let totalEpochs: Int
     let totalTime: TimeInterval
     let modelPath: String?

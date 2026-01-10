@@ -181,62 +181,107 @@ struct LiveTrainingChart: View {
 
 struct TrainingStatsBar: View {
     let run: TrainingRun
+    @State private var showExtendedMetrics = false
 
     var body: some View {
-        HStack(spacing: 0) {
-            StatBox(
-                title: "Progress",
-                value: "\(Int(run.progress * 100))%",
-                icon: "chart.pie.fill",
-                color: .blue
-            )
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                StatBox(
+                    title: "Progress",
+                    value: "\(Int(run.progress * 100))%",
+                    icon: "chart.pie.fill",
+                    color: .blue
+                )
 
-            Divider().frame(height: 40)
+                Divider().frame(height: 40)
 
-            StatBox(
-                title: "Epoch",
-                value: "\(run.currentEpoch)/\(run.totalEpochs)",
-                icon: "repeat",
-                color: .purple
-            )
+                StatBox(
+                    title: "Epoch",
+                    value: "\(run.currentEpoch)/\(run.totalEpochs)",
+                    icon: "repeat",
+                    color: .purple
+                )
 
-            Divider().frame(height: 40)
+                Divider().frame(height: 40)
 
-            StatBox(
-                title: "Loss",
-                value: run.loss.map { String(format: "%.4f", $0) } ?? "—",
-                icon: "arrow.down.right",
-                color: .red
-            )
+                StatBox(
+                    title: "Loss",
+                    value: run.loss.map { String(format: "%.4f", $0) } ?? "—",
+                    icon: "arrow.down.right",
+                    color: .red
+                )
 
-            Divider().frame(height: 40)
+                Divider().frame(height: 40)
 
-            StatBox(
-                title: "Accuracy",
-                value: run.accuracy.map { String(format: "%.1f%%", $0 * 100) } ?? "—",
-                icon: "target",
-                color: .green
-            )
+                StatBox(
+                    title: "Accuracy",
+                    value: run.accuracy.map { String(format: "%.1f%%", $0 * 100) } ?? "—",
+                    icon: "target",
+                    color: .green
+                )
 
-            Divider().frame(height: 40)
+                Divider().frame(height: 40)
 
-            StatBox(
-                title: "Duration",
-                value: run.duration,
-                icon: "clock.fill",
-                color: .orange
-            )
+                StatBox(
+                    title: "Duration",
+                    value: run.duration,
+                    icon: "clock.fill",
+                    color: .orange
+                )
 
-            Divider().frame(height: 40)
+                Divider().frame(height: 40)
 
-            StatBox(
-                title: "ETA",
-                value: calculateETA(run),
-                icon: "hourglass",
-                color: .cyan
-            )
+                StatBox(
+                    title: "ETA",
+                    value: calculateETA(run),
+                    icon: "hourglass",
+                    color: .cyan
+                )
+
+                Divider().frame(height: 40)
+
+                Button(action: { showExtendedMetrics.toggle() }) {
+                    Image(systemName: showExtendedMetrics ? "chevron.up" : "chevron.down")
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 12)
+            }
+            .padding(.vertical, 12)
+
+            if showExtendedMetrics {
+                Divider()
+                HStack(spacing: 0) {
+                    StatBox(
+                        title: "Precision",
+                        value: run.precision.map { String(format: "%.1f%%", $0 * 100) } ?? "—",
+                        icon: "scope",
+                        color: .teal
+                    )
+
+                    Divider().frame(height: 40)
+
+                    StatBox(
+                        title: "Recall",
+                        value: run.recall.map { String(format: "%.1f%%", $0 * 100) } ?? "—",
+                        icon: "arrow.uturn.backward",
+                        color: .indigo
+                    )
+
+                    Divider().frame(height: 40)
+
+                    StatBox(
+                        title: "F1 Score",
+                        value: run.f1Score.map { String(format: "%.1f%%", $0 * 100) } ?? "—",
+                        icon: "f.square",
+                        color: .mint
+                    )
+
+                    Spacer()
+                }
+                .padding(.vertical, 12)
+            }
         }
-        .padding(.vertical, 12)
         .background(Color(NSColor.controlBackgroundColor))
         .cornerRadius(12)
     }

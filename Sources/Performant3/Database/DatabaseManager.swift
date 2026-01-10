@@ -180,6 +180,15 @@ actor DatabaseManager {
             }
         }
 
+        // Migration 3: Add precision, recall, f1_score columns to training_runs
+        migrator.registerMigration("v3_extended_metrics") { db in
+            try db.alter(table: "training_runs") { t in
+                t.add(column: "precision", .double)
+                t.add(column: "recall", .double)
+                t.add(column: "f1_score", .double)
+            }
+        }
+
         try migrator.migrate(pool)
     }
 

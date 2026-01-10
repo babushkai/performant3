@@ -141,6 +141,9 @@ struct TrainingRun: Identifiable, Codable, Hashable {
     var architectureType: String  // Store as string for Codable compatibility
     var loss: Double?
     var accuracy: Double?
+    var precision: Double?
+    var recall: Double?
+    var f1Score: Double?
     var startedAt: Date
     var finishedAt: Date?
     var logs: [LogEntry]
@@ -264,15 +267,91 @@ struct MetricPoint: Identifiable, Codable, Hashable {
     let epoch: Int
     let loss: Double
     let accuracy: Double
+    let precision: Double?
+    let recall: Double?
+    let f1Score: Double?
     let timestamp: Date
 
-    init(epoch: Int, loss: Double, accuracy: Double) {
+    init(epoch: Int, loss: Double, accuracy: Double, precision: Double? = nil, recall: Double? = nil, f1Score: Double? = nil) {
         self.id = UUID().uuidString
         self.epoch = epoch
         self.loss = loss
         self.accuracy = accuracy
+        self.precision = precision
+        self.recall = recall
+        self.f1Score = f1Score
         self.timestamp = Date()
     }
+}
+
+// MARK: - Extended Metrics
+
+/// Extended metrics for multi-class classification
+struct ExtendedMetrics: Codable, Equatable {
+    var precision: Double
+    var recall: Double
+    var f1Score: Double
+    var perClassMetrics: [ClassMetrics]?
+
+    init(precision: Double = 0, recall: Double = 0, f1Score: Double = 0, perClassMetrics: [ClassMetrics]? = nil) {
+        self.precision = precision
+        self.recall = recall
+        self.f1Score = f1Score
+        self.perClassMetrics = perClassMetrics
+    }
+
+    /// Calculate from confusion matrix
+    static func calculate(predictions: [Int], labels: [Int], numClasses: Int) -> ExtendedMetrics {
+        guard !predictions.isEmpty, predictions.count == labels.count else {
+            return ExtendedMetrics()
+        }
+
+        var perClass: [ClassMetrics] = []
+        var totalTP = 0
+        var totalFP = 0
+        var totalFN = 0
+
+        for classIdx in 0..<numClasses {
+            var tp = 0, fp = 0, fn = 0
+
+            for (pred, label) in zip(predictions, labels) {
+                if pred == classIdx && label == classIdx {
+                    tp += 1
+                } else if pred == classIdx && label != classIdx {
+                    fp += 1
+                } else if pred != classIdx && label == classIdx {
+                    fn += 1
+                }
+            }
+
+            let precision = (tp + fp) > 0 ? Double(tp) / Double(tp + fp) : 0
+            let recall = (tp + fn) > 0 ? Double(tp) / Double(tp + fn) : 0
+            let f1 = (precision + recall) > 0 ? 2 * precision * recall / (precision + recall) : 0
+
+            perClass.append(ClassMetrics(classIndex: classIdx, precision: precision, recall: recall, f1Score: f1, support: tp + fn))
+
+            totalTP += tp
+            totalFP += fp
+            totalFN += fn
+        }
+
+        // Macro-average
+        let macroPrecision = perClass.map { $0.precision }.reduce(0, +) / Double(max(1, numClasses))
+        let macroRecall = perClass.map { $0.recall }.reduce(0, +) / Double(max(1, numClasses))
+        let macroF1 = (macroPrecision + macroRecall) > 0 ? 2 * macroPrecision * macroRecall / (macroPrecision + macroRecall) : 0
+
+        return ExtendedMetrics(precision: macroPrecision, recall: macroRecall, f1Score: macroF1, perClassMetrics: perClass)
+    }
+}
+
+/// Per-class metrics for detailed analysis
+struct ClassMetrics: Codable, Equatable, Identifiable {
+    var id: Int { classIndex }
+    let classIndex: Int
+    let precision: Double
+    let recall: Double
+    let f1Score: Double
+    let support: Int  // Number of samples in this class
 }
 
 // MARK: - Dataset

@@ -129,6 +129,9 @@ actor MLXTrainingService: TrainingBackend {
         var epochsWithoutImprovement = 0
         var finalLoss: Double = 0
         var finalAccuracy: Double = 0
+        var finalPrecision: Double?
+        var finalRecall: Double?
+        var finalF1Score: Double?
 
         // Get class labels and architecture from dataset/config
         let classLabels = dataset.classLabels
@@ -159,6 +162,9 @@ actor MLXTrainingService: TrainingBackend {
 
             finalLoss = epochResult.loss
             finalAccuracy = epochResult.accuracy ?? 0
+            if let p = epochResult.precision { finalPrecision = p }
+            if let r = epochResult.recall { finalRecall = r }
+            if let f = epochResult.f1Score { finalF1Score = f }
 
             // Save checkpoint if enabled
             if checkpointConfig.enabled,
@@ -229,6 +235,9 @@ actor MLXTrainingService: TrainingBackend {
         return TrainingResult(
             finalLoss: finalLoss,
             finalAccuracy: finalAccuracy,
+            finalPrecision: finalPrecision,
+            finalRecall: finalRecall,
+            finalF1Score: finalF1Score,
             totalEpochs: config.epochs,
             totalTime: totalTime,
             modelPath: nil,
@@ -237,6 +246,15 @@ actor MLXTrainingService: TrainingBackend {
     }
 
     // MARK: - Single Epoch Training with Proper Gradients
+
+    /// Epoch training result with extended metrics
+    struct EpochResult {
+        let loss: Double
+        let accuracy: Double?
+        let precision: Double?
+        let recall: Double?
+        let f1Score: Double?
+    }
 
     private func trainEpoch(
         epoch: Int,
@@ -247,11 +265,16 @@ actor MLXTrainingService: TrainingBackend {
         batchSize: Int,
         learningRate: Double,
         progressHandler: @escaping (TrainingProgress) -> Void
-    ) async throws -> (loss: Double, accuracy: Double?) {
+    ) async throws -> EpochResult {
         var epochLoss: Double = 0
         var correctPredictions: Int = 0
         var totalSamples: Int = 0
         var batchCount = 0
+
+        // For extended metrics calculation
+        var allPredictions: [Int] = []
+        var allLabels: [Int] = []
+        let numClasses = dataset.classLabels.count > 0 ? dataset.classLabels.count : 10
 
         let batches = dataset.batches(batchSize: batchSize, shuffle: true)
         let totalBatches = batches.totalBatches
@@ -292,6 +315,14 @@ actor MLXTrainingService: TrainingBackend {
             correctPredictions += Int(correct.item(Int32.self))
             totalSamples += Int(labels.dim(0))
 
+            // Collect predictions and labels for extended metrics (on last epoch or every 5 epochs)
+            if epoch == totalEpochs || epoch % 5 == 0 {
+                let batchPreds = predictions.asArray(Int32.self)
+                let batchLabels = labels.asArray(Int32.self)
+                allPredictions.append(contentsOf: batchPreds.map { Int($0) })
+                allLabels.append(contentsOf: batchLabels.map { Int($0) })
+            }
+
             batchCount += 1
 
             // Report progress every few batches
@@ -316,6 +347,18 @@ actor MLXTrainingService: TrainingBackend {
         let avgLoss = epochLoss / Double(Swift.max(1, batchCount))
         let accuracy = Double(correctPredictions) / Double(Swift.max(1, totalSamples))
 
+        // Calculate extended metrics if we collected predictions
+        var precision: Double?
+        var recall: Double?
+        var f1Score: Double?
+
+        if !allPredictions.isEmpty {
+            let extendedMetrics = ExtendedMetrics.calculate(predictions: allPredictions, labels: allLabels, numClasses: numClasses)
+            precision = extendedMetrics.precision
+            recall = extendedMetrics.recall
+            f1Score = extendedMetrics.f1Score
+        }
+
         // Report epoch completion
         progressHandler(TrainingProgress(
             epoch: epoch,
@@ -324,12 +367,15 @@ actor MLXTrainingService: TrainingBackend {
             totalSteps: totalBatches,
             loss: avgLoss,
             accuracy: accuracy,
+            precision: precision,
+            recall: recall,
+            f1Score: f1Score,
             learningRate: learningRate,
-            message: String(format: "Epoch %d/%d completed - Loss: %.4f, Accuracy: %.2f%%",
-                          epoch, totalEpochs, avgLoss, accuracy * 100)
+            message: String(format: "Epoch %d/%d - Loss: %.4f, Acc: %.2f%%, F1: %.2f%%",
+                          epoch, totalEpochs, avgLoss, accuracy * 100, (f1Score ?? 0) * 100)
         ))
 
-        return (avgLoss, accuracy)
+        return EpochResult(loss: avgLoss, accuracy: accuracy, precision: precision, recall: recall, f1Score: f1Score)
     }
 
     // MARK: - Cancel

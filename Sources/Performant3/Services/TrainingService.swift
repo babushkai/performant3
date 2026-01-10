@@ -292,11 +292,14 @@ class TrainingService: ObservableObject {
             run.finishedAt = Date()
             run.loss = result.finalLoss
             run.accuracy = result.finalAccuracy
+            run.precision = result.finalPrecision
+            run.recall = result.finalRecall
+            run.f1Score = result.finalF1Score
             run.logs.append(LogEntry(level: .info, message: "Training completed successfully"))
             run.logs.append(LogEntry(
                 level: .info,
-                message: String(format: "Final metrics - loss: %.4f, accuracy: %.2f%%, time: %.1fs",
-                               result.finalLoss, (result.finalAccuracy ?? 0) * 100, result.totalTime)
+                message: String(format: "Final metrics - Loss: %.4f, Accuracy: %.2f%%, F1: %.2f%%, Time: %.1fs",
+                               result.finalLoss, (result.finalAccuracy ?? 0) * 100, (result.finalF1Score ?? 0) * 100, result.totalTime)
             ))
 
             activeRuns.removeValue(forKey: runId)
@@ -665,6 +668,16 @@ struct TrainingConfig: Codable {
     var keepCheckpoints: Int
     var allowSyntheticFallback: Bool  // If true, allows fallback to synthetic data when dataset fails
 
+    // Learning rate scheduler
+    var lrScheduler: LRScheduler
+    var lrDecayFactor: Double  // For step/exponential decay
+    var lrDecaySteps: Int  // For step decay: every N epochs
+    var lrMinimum: Double  // Minimum learning rate
+    var warmupEpochs: Int  // For warmup schedulers
+
+    // Data augmentation
+    var augmentation: DataAugmentationConfig
+
     static var `default`: TrainingConfig {
         TrainingConfig(
             epochs: 30,  // Increased from 10 - MNIST needs more epochs for >95% accuracy
@@ -679,7 +692,13 @@ struct TrainingConfig: Codable {
             saveCheckpoints: true,
             checkpointFrequency: 5,
             keepCheckpoints: 3,
-            allowSyntheticFallback: true  // Enable by default for easier testing
+            allowSyntheticFallback: true,  // Enable by default for easier testing
+            lrScheduler: .none,
+            lrDecayFactor: 0.1,
+            lrDecaySteps: 10,
+            lrMinimum: 1e-6,
+            warmupEpochs: 5,
+            augmentation: .default
         )
     }
 }
@@ -760,4 +779,67 @@ enum LossFunction: String, Codable, CaseIterable {
     case mse = "Mean Squared Error"
     case bce = "Binary Cross Entropy"
     case huber = "Huber Loss"
+}
+
+// MARK: - Learning Rate Scheduler
+
+enum LRScheduler: String, Codable, CaseIterable {
+    case none = "None"
+    case step = "Step Decay"
+    case exponential = "Exponential Decay"
+    case cosine = "Cosine Annealing"
+    case warmupCosine = "Warmup + Cosine"
+    case oneCycle = "One Cycle"
+
+    var description: String {
+        switch self {
+        case .none: return "Constant learning rate throughout training"
+        case .step: return "Reduce LR by factor every N epochs"
+        case .exponential: return "Smoothly decrease LR exponentially"
+        case .cosine: return "Cosine curve from initial to minimum LR"
+        case .warmupCosine: return "Linear warmup then cosine decay"
+        case .oneCycle: return "Increase then decrease LR in one cycle"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .none: return "arrow.right"
+        case .step: return "stairs"
+        case .exponential: return "arrow.down.right"
+        case .cosine: return "waveform.path"
+        case .warmupCosine: return "chart.line.uptrend.xyaxis"
+        case .oneCycle: return "arrow.up.and.down"
+        }
+    }
+}
+
+// MARK: - Data Augmentation
+
+struct DataAugmentationConfig: Codable, Equatable {
+    var enabled: Bool = false
+    var horizontalFlip: Bool = true
+    var verticalFlip: Bool = false
+    var rotation: Double = 15.0  // degrees
+    var zoom: Double = 0.1  // 0-1 range
+    var brightness: Double = 0.2  // 0-1 range
+    var contrast: Double = 0.2  // 0-1 range
+    var noise: Double = 0.05  // gaussian noise std
+
+    static var `default`: DataAugmentationConfig {
+        DataAugmentationConfig()
+    }
+
+    static var mnist: DataAugmentationConfig {
+        DataAugmentationConfig(
+            enabled: true,
+            horizontalFlip: false,  // Don't flip digits
+            verticalFlip: false,
+            rotation: 15.0,
+            zoom: 0.1,
+            brightness: 0.1,
+            contrast: 0.1,
+            noise: 0.02
+        )
+    }
 }

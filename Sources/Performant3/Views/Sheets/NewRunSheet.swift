@@ -282,6 +282,112 @@ struct NewRunSheet: View {
 
                             Divider()
 
+                            // Learning Rate Scheduler
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Learning Rate Scheduler")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+
+                                Picker("Scheduler", selection: $config.lrScheduler) {
+                                    ForEach(LRScheduler.allCases, id: \.self) { scheduler in
+                                        Label(scheduler.rawValue, systemImage: scheduler.icon).tag(scheduler)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+
+                                Text(config.lrScheduler.description)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+
+                                if config.lrScheduler == .step {
+                                    HStack {
+                                        Text("Decay every")
+                                        Spacer()
+                                        Stepper("\(config.lrDecaySteps) epochs", value: $config.lrDecaySteps, in: 1...50)
+                                    }
+                                    HStack {
+                                        Text("Decay factor")
+                                        Spacer()
+                                        Text(String(format: "%.2f", config.lrDecayFactor))
+                                        Slider(value: $config.lrDecayFactor, in: 0.1...0.9)
+                                            .frame(width: 100)
+                                    }
+                                }
+
+                                if config.lrScheduler == .warmupCosine || config.lrScheduler == .oneCycle {
+                                    HStack {
+                                        Text("Warmup epochs")
+                                        Spacer()
+                                        Stepper("\(config.warmupEpochs)", value: $config.warmupEpochs, in: 1...20)
+                                    }
+                                }
+
+                                if config.lrScheduler != .none {
+                                    HStack {
+                                        Text("Minimum LR")
+                                        Spacer()
+                                        TextField("", value: $config.lrMinimum, format: .number)
+                                            .frame(width: 80)
+                                            .textFieldStyle(.roundedBorder)
+                                    }
+                                }
+                            }
+
+                            Divider()
+
+                            // Data Augmentation
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Data Augmentation")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+
+                                Toggle("Enable augmentation", isOn: $config.augmentation.enabled)
+
+                                if config.augmentation.enabled {
+                                    VStack(spacing: 8) {
+                                        HStack {
+                                            Toggle("Horizontal Flip", isOn: $config.augmentation.horizontalFlip)
+                                            Spacer()
+                                            Toggle("Vertical Flip", isOn: $config.augmentation.verticalFlip)
+                                        }
+
+                                        ConfigSlider(
+                                            title: "Rotation (degrees)",
+                                            value: $config.augmentation.rotation,
+                                            range: 0...45,
+                                            format: "%.0f°"
+                                        )
+
+                                        ConfigSlider(
+                                            title: "Zoom",
+                                            value: $config.augmentation.zoom,
+                                            range: 0...0.5,
+                                            format: "%.0f%%",
+                                            multiplier: 100
+                                        )
+
+                                        ConfigSlider(
+                                            title: "Brightness",
+                                            value: $config.augmentation.brightness,
+                                            range: 0...0.5,
+                                            format: "%.0f%%",
+                                            multiplier: 100
+                                        )
+
+                                        ConfigSlider(
+                                            title: "Contrast",
+                                            value: $config.augmentation.contrast,
+                                            range: 0...0.5,
+                                            format: "%.0f%%",
+                                            multiplier: 100
+                                        )
+                                    }
+                                    .padding(.leading, 8)
+                                }
+                            }
+
+                            Divider()
+
                             // Checkpointing
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Checkpointing")

@@ -13,6 +13,9 @@ struct RunComparisonView: View {
     enum MetricType: String, CaseIterable {
         case loss = "Loss"
         case accuracy = "Accuracy"
+        case precision = "Precision"
+        case recall = "Recall"
+        case f1Score = "F1 Score"
     }
 
     enum ChartType: String, CaseIterable {
@@ -114,18 +117,20 @@ struct ComparisonChart: View {
             Chart {
                 ForEach(runs) { run in
                     ForEach(run.metrics) { metric in
-                        let value = metricType == .loss ? metric.loss : metric.accuracy
-                        LineMark(
-                            x: .value("Epoch", metric.epoch),
-                            y: .value(metricType.rawValue, value)
-                        )
-                        .foregroundStyle(by: .value("Run", run.name))
+                        let value = valueForMetric(metric)
+                        if let value = value {
+                            LineMark(
+                                x: .value("Epoch", metric.epoch),
+                                y: .value(metricType.rawValue, value)
+                            )
+                            .foregroundStyle(by: .value("Run", run.name))
 
-                        PointMark(
-                            x: .value("Epoch", metric.epoch),
-                            y: .value(metricType.rawValue, value)
-                        )
-                        .foregroundStyle(by: .value("Run", run.name))
+                            PointMark(
+                                x: .value("Epoch", metric.epoch),
+                                y: .value(metricType.rawValue, value)
+                            )
+                            .foregroundStyle(by: .value("Run", run.name))
+                        }
                     }
                 }
             }
@@ -133,6 +138,21 @@ struct ComparisonChart: View {
             .chartYAxisLabel(metricType.rawValue)
             .chartLegend(position: .bottom)
             .frame(minHeight: 300)
+        }
+    }
+
+    private func valueForMetric(_ metric: MetricPoint) -> Double? {
+        switch metricType {
+        case .loss:
+            return metric.loss
+        case .accuracy:
+            return metric.accuracy
+        case .precision:
+            return metric.precision
+        case .recall:
+            return metric.recall
+        case .f1Score:
+            return metric.f1Score
         }
     }
 }
@@ -178,6 +198,9 @@ struct ComparisonTable: View {
                     ParameterRow(label: "Learning Rate", values: runs.map { String(format: "%.5f", $0.learningRate) })
                     ParameterRow(label: "Final Loss", values: runs.map { $0.loss.map { String(format: "%.4f", $0) } ?? "—" })
                     ParameterRow(label: "Final Accuracy", values: runs.map { $0.accuracy.map { String(format: "%.2f%%", $0 * 100) } ?? "—" })
+                    ParameterRow(label: "Precision", values: runs.map { $0.precision.map { String(format: "%.2f%%", $0 * 100) } ?? "—" })
+                    ParameterRow(label: "Recall", values: runs.map { $0.recall.map { String(format: "%.2f%%", $0 * 100) } ?? "—" })
+                    ParameterRow(label: "F1 Score", values: runs.map { $0.f1Score.map { String(format: "%.2f%%", $0 * 100) } ?? "—" })
                     ParameterRow(label: "Duration", values: runs.map { $0.duration })
                 }
             }
@@ -216,7 +239,7 @@ struct ParameterRow: View {
 struct RadarComparisonChart: View {
     let runs: [TrainingRun]
 
-    private let metrics = ["Accuracy", "Epochs", "Batch", "LR", "Loss"]
+    private let metrics = ["Accuracy", "F1", "Precision", "Recall", "Loss"]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -318,15 +341,11 @@ struct RadarComparisonChart: View {
     }
 
     private func normalizedValues(for run: TrainingRun) -> [Double] {
-        let maxEpochs = Double(runs.map { $0.totalEpochs }.max() ?? 100)
-        let maxBatch = Double(runs.map { $0.batchSize }.max() ?? 128)
-        let maxLR = runs.map { $0.learningRate }.max() ?? 0.01
-
         return [
             run.accuracy ?? 0,  // Already 0-1
-            Double(run.totalEpochs) / maxEpochs,
-            Double(run.batchSize) / maxBatch,
-            run.learningRate / maxLR,
+            run.f1Score ?? 0,   // Already 0-1
+            run.precision ?? 0, // Already 0-1
+            run.recall ?? 0,    // Already 0-1
             1 - min(1, (run.loss ?? 0) / 2)  // Invert loss so higher is better
         ]
     }
@@ -391,11 +410,11 @@ struct ParallelCoordinatesChart: View {
     let runs: [TrainingRun]
 
     private let parameters: [(name: String, getValue: (TrainingRun) -> Double)] = [
-        ("Epochs", { Double($0.totalEpochs) / 100.0 }),
-        ("Batch", { Double($0.batchSize) / 128.0 }),
-        ("LR", { $0.learningRate * 100.0 }),
-        ("Loss", { min(1, ($0.loss ?? 0) / 2.0) }),
-        ("Accuracy", { $0.accuracy ?? 0 })
+        ("Accuracy", { $0.accuracy ?? 0 }),
+        ("Precision", { $0.precision ?? 0 }),
+        ("Recall", { $0.recall ?? 0 }),
+        ("F1", { $0.f1Score ?? 0 }),
+        ("Loss", { 1 - min(1, ($0.loss ?? 0) / 2.0) })  // Inverted so higher is better
     ]
 
     var body: some View {

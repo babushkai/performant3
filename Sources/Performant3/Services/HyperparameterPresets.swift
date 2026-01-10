@@ -53,7 +53,13 @@ class HyperparameterPresetsManager {
                     saveCheckpoints: false,
                     checkpointFrequency: 5,
                     keepCheckpoints: 1,
-                    allowSyntheticFallback: true
+                    allowSyntheticFallback: true,
+                    lrScheduler: .none,
+                    lrDecayFactor: 0.1,
+                    lrDecaySteps: 10,
+                    lrMinimum: 1e-6,
+                    warmupEpochs: 1,
+                    augmentation: .default
                 )
             ),
 
@@ -76,7 +82,13 @@ class HyperparameterPresetsManager {
                     saveCheckpoints: true,
                     checkpointFrequency: 10,
                     keepCheckpoints: 3,
-                    allowSyntheticFallback: true
+                    allowSyntheticFallback: true,
+                    lrScheduler: .cosine,
+                    lrDecayFactor: 0.1,
+                    lrDecaySteps: 10,
+                    lrMinimum: 1e-6,
+                    warmupEpochs: 5,
+                    augmentation: .default
                 )
             ),
 
@@ -99,7 +111,13 @@ class HyperparameterPresetsManager {
                     saveCheckpoints: true,
                     checkpointFrequency: 5,
                     keepCheckpoints: 5,
-                    allowSyntheticFallback: true
+                    allowSyntheticFallback: true,
+                    lrScheduler: .warmupCosine,
+                    lrDecayFactor: 0.1,
+                    lrDecaySteps: 20,
+                    lrMinimum: 1e-7,
+                    warmupEpochs: 10,
+                    augmentation: DataAugmentationConfig(enabled: true)
                 )
             ),
 
@@ -122,7 +140,13 @@ class HyperparameterPresetsManager {
                     saveCheckpoints: true,
                     checkpointFrequency: 10,
                     keepCheckpoints: 2,
-                    allowSyntheticFallback: true
+                    allowSyntheticFallback: true,
+                    lrScheduler: .step,
+                    lrDecayFactor: 0.5,
+                    lrDecaySteps: 15,
+                    lrMinimum: 1e-6,
+                    warmupEpochs: 3,
+                    augmentation: .default
                 )
             ),
 
@@ -145,7 +169,13 @@ class HyperparameterPresetsManager {
                     saveCheckpoints: true,
                     checkpointFrequency: 5,
                     keepCheckpoints: 2,
-                    allowSyntheticFallback: false
+                    allowSyntheticFallback: false,
+                    lrScheduler: .cosine,
+                    lrDecayFactor: 0.1,
+                    lrDecaySteps: 5,
+                    lrMinimum: 1e-5,
+                    warmupEpochs: 2,
+                    augmentation: DataAugmentationConfig(enabled: true)
                 )
             ),
 
@@ -168,7 +198,13 @@ class HyperparameterPresetsManager {
                     saveCheckpoints: true,
                     checkpointFrequency: 10,
                     keepCheckpoints: 5,
-                    allowSyntheticFallback: false
+                    allowSyntheticFallback: false,
+                    lrScheduler: .warmupCosine,
+                    lrDecayFactor: 0.1,
+                    lrDecaySteps: 20,
+                    lrMinimum: 1e-5,
+                    warmupEpochs: 5,
+                    augmentation: DataAugmentationConfig(enabled: true)
                 )
             ),
 
@@ -191,7 +227,13 @@ class HyperparameterPresetsManager {
                     saveCheckpoints: true,
                     checkpointFrequency: 5,
                     keepCheckpoints: 3,
-                    allowSyntheticFallback: false
+                    allowSyntheticFallback: false,
+                    lrScheduler: .warmupCosine,
+                    lrDecayFactor: 0.1,
+                    lrDecaySteps: 10,
+                    lrMinimum: 1e-7,
+                    warmupEpochs: 3,
+                    augmentation: .default
                 )
             )
         ]
