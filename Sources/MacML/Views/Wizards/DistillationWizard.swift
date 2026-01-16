@@ -32,8 +32,8 @@ struct DistillationWizard: View {
             HStack(spacing: 0) {
                 ForEach(0..<steps.count, id: \.self) { index in
                     StepIndicator(
+                        number: index + 1,
                         title: steps[index],
-                        stepNumber: index + 1,
                         isActive: index == currentStep,
                         isCompleted: index < currentStep
                     )
@@ -123,39 +123,6 @@ struct DistillationWizard: View {
         let run = DistillationRun(name: runName, config: config)
         appState.startDistillation(run: run)
         dismiss()
-    }
-}
-
-// MARK: - Step Indicator
-
-struct StepIndicator: View {
-    let title: String
-    let stepNumber: Int
-    let isActive: Bool
-    let isCompleted: Bool
-
-    var body: some View {
-        VStack(spacing: 4) {
-            ZStack {
-                Circle()
-                    .fill(isActive ? Color.accentColor : (isCompleted ? Color.accentColor : Color.secondary.opacity(0.3)))
-                    .frame(width: 30, height: 30)
-
-                if isCompleted {
-                    Image(systemName: "checkmark")
-                        .foregroundColor(.white)
-                        .font(.caption.bold())
-                } else {
-                    Text("\(stepNumber)")
-                        .foregroundColor(isActive ? .white : .secondary)
-                        .font(.caption.bold())
-                }
-            }
-            Text(title)
-                .font(.caption)
-                .foregroundColor(isActive ? .primary : .secondary)
-        }
-        .frame(width: 60)
     }
 }
 
