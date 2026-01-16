@@ -40,7 +40,7 @@ jobs:
         # Non-blocking: exits 0 even with violations until codebase is cleaned up
 
   # ============================================
-  # Unit Tests with Coverage
+  # Unit Tests
   # ============================================
   test:
     name: Tests
@@ -64,49 +64,18 @@ jobs:
             ${{ runner.os }}-spm-${{ env.XCODE_VERSION }}-
             ${{ runner.os }}-spm-
 
-      - name: Resolve dependencies
-        run: swift package resolve
-
-      - name: Run tests with coverage
+      - name: Build and test
         run: |
-          swift test \
-            --parallel \
-            --enable-code-coverage \
-            2>&1 | tee test-output.log
+          # Build in release mode for faster execution, run tests in parallel
+          swift test -c release --parallel 2>&1 | tee test-output.log
+          TEST_EXIT=${PIPESTATUS[0]}
           
-          # Check exit code
-          if [ ${PIPESTATUS[0]} -ne 0 ]; then
-            echo "::error::Tests failed"
-            exit 1
-          fi
-
-      - name: Generate coverage report
-        if: success()
-        run: |
-          BIN_PATH=$(swift build --show-bin-path)
-          PROFDATA=$(find .build -name "*.profdata" | head -1)
-          
-          if [ -n "$PROFDATA" ] && [ -f "$PROFDATA" ]; then
-            # Find the test binary
-            TEST_BIN=$(find "$BIN_PATH" -name "*.xctest" -type d | head -1)
-            if [ -n "$TEST_BIN" ]; then
-              EXEC_PATH="$TEST_BIN/Contents/MacOS/$(basename "$TEST_BIN" .xctest)"
-              
-              if [ -f "$EXEC_PATH" ]; then
-                xcrun llvm-cov report \
-                  "$EXEC_PATH" \
-                  -instr-profile="$PROFDATA" \
-                  -ignore-filename-regex=".build|Tests" \
-                  > coverage-summary.txt 2>/dev/null || true
-                
-                if [ -f "coverage-summary.txt" ]; then
-                  echo "### Code Coverage Summary" >> $GITHUB_STEP_SUMMARY
-                  echo '```' >> $GITHUB_STEP_SUMMARY
-                  cat coverage-summary.txt >> $GITHUB_STEP_SUMMARY
-                  echo '```' >> $GITHUB_STEP_SUMMARY
-                fi
-              fi
-            fi
+          # Report results
+          if [ $TEST_EXIT -eq 0 ]; then
+            echo "### ✅ Tests Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Tests Failed" >> $GITHUB_STEP_SUMMARY
+            exit $TEST_EXIT
           fi
 
       - name: Upload test artifacts
@@ -175,22 +144,14 @@ jobs:
         with:
           xcode-version: ${{ env.XCODE_VERSION }}
 
-      - name: Install xcbeautify
-        run: brew install xcbeautify
-
       - name: Cache Swift packages
         uses: actions/cache@v4
         with:
-          path: |
-            .build
-            ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}-spm-build-${{ hashFiles('Package.resolved') }}
+          path: .build
+          key: ${{ runner.os }}-spm-${{ env.XCODE_VERSION }}-${{ hashFiles('Package.resolved') }}
           restore-keys: |
-            ${{ runner.os }}-spm-build-
+            ${{ runner.os }}-spm-${{ env.XCODE_VERSION }}-
             ${{ runner.os }}-spm-
-
-      - name: Resolve dependencies
-        run: swift package resolve
 
       - name: Build application (Release)
         run: |
@@ -198,8 +159,8 @@ jobs:
             -destination 'platform=macOS' \
             -configuration Release \
             -derivedDataPath "${{ runner.temp }}/DerivedData" \
-            build \
-            2>&1 | xcbeautify --renderer github-actions
+            CODE_SIGNING_ALLOWED=NO \
+            build 2>&1 | tail -50
 
       - name: Package application bundle
         id: package
