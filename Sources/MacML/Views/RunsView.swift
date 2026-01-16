@@ -77,18 +77,18 @@ struct RunsView: View {
                             }
 
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Training Runs")
+                                Text(L.trainingRuns)
                                     .font(.system(size: 28, weight: .bold))
                                     .foregroundColor(AppTheme.textPrimary)
 
                                 HStack(spacing: 12) {
-                                    Label("\(appState.runs.count) total", systemImage: "number")
+                                    Label("\(appState.runs.count) \(L.total)", systemImage: "number")
                                     if activeRunsCount > 0 {
-                                        Label("\(activeRunsCount) active", systemImage: "bolt.fill")
+                                        Label(L.nActive(activeRunsCount), systemImage: "bolt.fill")
                                             .foregroundColor(AppTheme.warning)
                                     }
                                     if failedRunsCount > 0 {
-                                        Label("\(failedRunsCount) failed", systemImage: "exclamationmark.triangle.fill")
+                                        Label("\(failedRunsCount) \(L.failed)", systemImage: "exclamationmark.triangle.fill")
                                             .foregroundColor(AppTheme.error)
                                     }
                                 }
