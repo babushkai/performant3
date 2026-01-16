@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-APP_NAME="Performant3"
-BUNDLE_ID="com.performant3.app"
+APP_NAME="MacML"
+BUNDLE_ID="com.macml.app"
 
 # Get version from environment variable, git tag, or default
 if [ -n "$VERSION" ]; then
@@ -18,14 +18,14 @@ fi
 echo "Building $APP_NAME with xcodebuild (required for Metal shaders)..."
 
 # Build with xcodebuild (required for Metal shader compilation)
-xcodebuild -scheme Performant3 -destination 'platform=macOS' -configuration Release build
+xcodebuild -scheme MacML -destination 'platform=macOS' -configuration Release build
 
 # Find the build products directory
-DERIVED_DATA=$(xcodebuild -scheme Performant3 -showBuildSettings 2>/dev/null | grep -m 1 'BUILT_PRODUCTS_DIR' | awk '{print $3}')
+DERIVED_DATA=$(xcodebuild -scheme MacML -showBuildSettings 2>/dev/null | grep -m 1 'BUILT_PRODUCTS_DIR' | awk '{print $3}')
 
 if [ -z "$DERIVED_DATA" ]; then
     # Fallback to find it
-    DERIVED_DATA=$(find ~/Library/Developer/Xcode/DerivedData -name "peformant3-*" -type d 2>/dev/null | head -1)/Build/Products/Release
+    DERIVED_DATA=$(find ~/Library/Developer/Xcode/DerivedData -name "macml-*" -type d 2>/dev/null | head -1)/Build/Products/Release
 fi
 
 echo "Build products at: $DERIVED_DATA"
@@ -38,7 +38,7 @@ mkdir -p "$APP_DIR/Contents/Resources"
 mkdir -p "$APP_DIR/Contents/Frameworks"
 
 # Copy executable
-cp "$DERIVED_DATA/Performant3" "$APP_DIR/Contents/MacOS/"
+cp "$DERIVED_DATA/MacML" "$APP_DIR/Contents/MacOS/"
 
 # Copy Info.plist and update version
 cp Info.plist "$APP_DIR/Contents/"

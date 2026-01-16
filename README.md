@@ -1,8 +1,8 @@
-# Performant3
+# MacML
 
-[![Build](https://github.com/babushkai/performant3/actions/workflows/build.yml/badge.svg)](https://github.com/babushkai/performant3/actions/workflows/build.yml)
-[![Release](https://img.shields.io/github/v/release/babushkai/performant3)](https://github.com/babushkai/performant3/releases/latest)
-[![License](https://img.shields.io/github/license/babushkai/performant3)](LICENSE)
+[![Build](https://github.com/babushkai/macml/actions/workflows/build.yml/badge.svg)](https://github.com/babushkai/macml/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/babushkai/macml)](https://github.com/babushkai/macml/releases/latest)
+[![License](https://img.shields.io/github/license/babushkai/macml)](LICENSE)
 
 A native macOS MLOps platform built for Apple Silicon, featuring SwiftUI interface and MLX integration for local machine learning workflows.
 
@@ -25,7 +25,7 @@ A native macOS MLOps platform built for Apple Silicon, featuring SwiftUI interfa
 ### From Release
 
 1. Download the latest `.dmg` from [Releases](../../releases)
-2. Open the DMG and drag **Performant3** to Applications
+2. Open the DMG and drag **MacML** to Applications
 3. Launch from Applications
 
 > **Note:** On first launch, right-click and select "Open" if you see a Gatekeeper warning.
@@ -34,14 +34,14 @@ A native macOS MLOps platform built for Apple Silicon, featuring SwiftUI interfa
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/performant3.git
-cd performant3
+git clone https://github.com/YOUR_USERNAME/macml.git
+cd macml
 
 # Build the app
 ./build-app.sh
 
 # Run
-open Performant3.app
+open MacML.app
 ```
 
 ## Development
@@ -55,7 +55,7 @@ open Performant3.app
 
 ```bash
 # Build with xcodebuild (required for Metal shaders)
-xcodebuild -scheme Performant3 -destination 'platform=macOS' -configuration Release build
+xcodebuild -scheme MacML -destination 'platform=macOS' -configuration Release build
 
 # Or use the build script (creates .app and .dmg)
 ./build-app.sh
@@ -64,8 +64,8 @@ xcodebuild -scheme Performant3 -destination 'platform=macOS' -configuration Rele
 ### Project Structure
 
 ```
-performant3/
-├── Sources/Performant3/
+macml/
+├── Sources/MacML/
 │   ├── main.swift           # App entry point
 │   ├── Database/            # GRDB persistence layer
 │   ├── Models/              # Data models
@@ -96,4 +96,4 @@ See [RELEASING.md](.github/RELEASING.md) for release process details.
 
 ## License
 
-[Add your license here]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

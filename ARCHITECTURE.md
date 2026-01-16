@@ -1,8 +1,8 @@
-# Performant3: MLOps Platform Architecture
+# MacML: MLOps Platform Architecture
 
 ## Executive Summary
 
-Performant3 is a production-grade MLOps platform designed for macOS with Apple Silicon optimization. The architecture prioritizes offline-first operation, native performance, and seamless scaling from local development to cloud execution.
+MacML is a production-grade MLOps platform designed for macOS with Apple Silicon optimization. The architecture prioritizes offline-first operation, native performance, and seamless scaling from local development to cloud execution.
 
 ---
 
@@ -10,7 +10,7 @@ Performant3 is a production-grade MLOps platform designed for macOS with Apple S
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                              PERFORMANT3 SYSTEM                              │
+│                              MACML SYSTEM                              │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
@@ -98,7 +98,7 @@ Performant3 is a production-grade MLOps platform designed for macOS with Apple S
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │   ┌─────────────────────────────────────────────────────────────────┐  │
-│   │  Performant3.app (UI Process)                                    │  │
+│   │  MacML.app (UI Process)                                    │  │
 │   │  PID: Dynamic | Sandbox: Yes | Entitlements: UI-focused         │  │
 │   │                                                                   │  │
 │   │  Responsibilities:                                                │  │
@@ -114,7 +114,7 @@ Performant3 is a production-grade MLOps platform designed for macOS with Apple S
 │                           │ XPC (Mach ports)                            │
 │                           ▼                                             │
 │   ┌─────────────────────────────────────────────────────────────────┐  │
-│   │  com.performant3.agent (LaunchAgent Daemon)                      │  │
+│   │  com.macml.agent (LaunchAgent Daemon)                      │  │
 │   │  PID: Persistent | Sandbox: Yes | Entitlements: Network + FS    │  │
 │   │                                                                   │  │
 │   │  Responsibilities:                                                │  │
@@ -131,7 +131,7 @@ Performant3 is a production-grade MLOps platform designed for macOS with Apple S
 │                           │ Process spawn (optional)                    │
 │                           ▼                                             │
 │   ┌─────────────────────────────────────────────────────────────────┐  │
-│   │  com.performant3.mlrunner (On-demand ML Process)                 │  │
+│   │  com.macml.mlrunner (On-demand ML Process)                 │  │
 │   │  PID: Transient | Sandbox: Strict | Entitlements: GPU + ANE     │  │
 │   │                                                                   │  │
 │   │  Responsibilities:                                                │  │
@@ -149,7 +149,7 @@ Performant3 is a production-grade MLOps platform designed for macOS with Apple S
 ### 2.2 Module Architecture (Agent Daemon)
 
 ```
-com.performant3.agent/
+com.macml.agent/
 ├── Core/
 │   ├── AgentApp.swift              # Entry point, lifecycle management
 │   ├── XPCService.swift            # XPC listener and protocol impl
@@ -253,9 +253,9 @@ com.performant3.agent/
 ### 2.3 UI Module Architecture
 
 ```
-Performant3.app/
+MacML.app/
 ├── App/
-│   ├── Performant3App.swift            # @main entry
+│   ├── MacMLApp.swift            # @main entry
 │   ├── AppDelegate.swift               # AppKit lifecycle hooks
 │   └── SceneDelegate.swift             # Window management
 │
@@ -979,12 +979,12 @@ Performant3.app/
 │  │  Format: OSLog with structured metadata                          │   │
 │  │                                                                   │   │
 │  │  Categories:                                                      │   │
-│  │  - com.performant3.ui          (UI events)                       │   │
-│  │  - com.performant3.agent       (Agent operations)                │   │
-│  │  - com.performant3.sync        (Sync activity)                   │   │
-│  │  - com.performant3.network     (Network operations)              │   │
-│  │  - com.performant3.storage     (Storage operations)              │   │
-│  │  - com.performant3.ml          (ML execution)                    │   │
+│  │  - com.macml.ui          (UI events)                       │   │
+│  │  - com.macml.agent       (Agent operations)                │   │
+│  │  - com.macml.sync        (Sync activity)                   │   │
+│  │  - com.macml.network     (Network operations)              │   │
+│  │  - com.macml.storage     (Storage operations)              │   │
+│  │  - com.macml.ml          (ML execution)                    │   │
 │  │                                                                   │   │
 │  │  Levels: debug, info, warning, error, fault                      │   │
 │  │  Privacy: .private for PII, .public for safe data               │   │
@@ -1042,16 +1042,16 @@ Performant3.app/
 ## 8. Directory Structure
 
 ```
-Performant3/
-├── Performant3.xcworkspace           # Xcode workspace
-├── Performant3/                       # UI App target
+MacML/
+├── MacML.xcworkspace           # Xcode workspace
+├── MacML/                       # UI App target
 │   ├── App/
 │   ├── Features/
 │   ├── Services/
 │   ├── Components/
 │   └── Resources/
 │
-├── Performant3Agent/                  # Agent daemon target
+├── MacMLAgent/                  # Agent daemon target
 │   ├── Core/
 │   ├── ControlPlane/
 │   ├── DataPlane/
@@ -1060,11 +1060,11 @@ Performant3/
 │   ├── MLExecution/
 │   └── Observability/
 │
-├── Performant3MLRunner/               # ML runner target
+├── MacMLMLRunner/               # ML runner target
 │   ├── CoreMLRunner/
 │   └── MLXRunner/
 │
-├── Performant3Kit/                    # Shared framework
+├── MacMLKit/                    # Shared framework
 │   ├── Models/                        # Shared data models
 │   ├── Protocols/                     # XPC protocols
 │   ├── Utilities/                     # Common utilities
@@ -1081,8 +1081,8 @@ Performant3/
 │   └── notarize.sh
 │
 ├── Tests/
-│   ├── Performant3Tests/
-│   ├── Performant3AgentTests/
+│   ├── MacMLTests/
+│   ├── MacMLAgentTests/
 │   └── IntegrationTests/
 │
 └── Documentation/
@@ -1146,4 +1146,4 @@ Performant3/
 ---
 
 *Document Version: 1.0*
-*Architecture for: Performant3 MLOps Platform*
+*Architecture for: MacML MLOps Platform*

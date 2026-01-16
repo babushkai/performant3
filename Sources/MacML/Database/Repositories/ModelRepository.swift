@@ -69,9 +69,15 @@ actor ModelRepository {
     }
 
     func search(query: String) async throws -> [MLModel] {
-        try await db.read { db in
+        // Sanitize the query to prevent SQL injection by escaping special LIKE characters
+        let sanitizedQuery = query
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "%", with: "\\%")
+            .replacingOccurrences(of: "_", with: "\\_")
+        
+        return try await db.read { db in
             try ModelRecord
-                .filter(ModelRecord.Columns.name.like("%\(query)%"))
+                .filter(ModelRecord.Columns.name.like("%\(sanitizedQuery)%", escape: "\\"))
                 .order(ModelRecord.Columns.updatedAt.desc)
                 .fetchAll(db)
                 .map { $0.toModel() }
