@@ -5,7 +5,7 @@ actor PythonEnvironmentManager {
     static let shared = PythonEnvironmentManager()
 
     private let venvPath = FileManager.default.homeDirectoryForCurrentUser
-        .appendingPathComponent(".performant3/venv")
+        .appendingPathComponent(".macml/venv")
 
     private let requiredPackages = [
         "ultralytics",

@@ -109,10 +109,9 @@ class TrainingService: ObservableObject {
             Bundle.main.resourceURL?.appendingPathComponent("Scripts/train_yolov8.py").path,
             // Relative to executable (SPM build)
             Bundle.main.executableURL?.deletingLastPathComponent().appendingPathComponent("Performant3_Performant3.bundle/Scripts/train_yolov8.py").path,
+            Bundle.main.executableURL?.deletingLastPathComponent().appendingPathComponent("MacML_MacML.bundle/Contents/Resources/Scripts/train_yolov8.py").path,
             // Development path (relative to working directory)
-            FileManager.default.currentDirectoryPath + "/Resources/Scripts/train_yolov8.py",
-            // Absolute fallback
-            "/Users/dsuke/Projects/dev/peformant3/Resources/Scripts/train_yolov8.py"
+            FileManager.default.currentDirectoryPath + "/Resources/Scripts/train_yolov8.py"
         ].compactMap { $0 }
 
         if let validPath = possiblePaths.first(where: { FileManager.default.fileExists(atPath: $0) }) {
@@ -417,8 +416,9 @@ class TrainingService: ObservableObject {
         let possiblePaths = [
             Bundle.main.url(forResource: "train_yolov8", withExtension: "py", subdirectory: "Scripts")?.path,
             Bundle.main.resourceURL?.appendingPathComponent("Scripts/train_yolov8.py").path,
-            FileManager.default.currentDirectoryPath + "/Resources/Scripts/train_yolov8.py",
-            "/Users/dsuke/Projects/dev/peformant3/Resources/Scripts/train_yolov8.py"
+            Bundle.main.executableURL?.deletingLastPathComponent().appendingPathComponent("Performant3_Performant3.bundle/Scripts/train_yolov8.py").path,
+            Bundle.main.executableURL?.deletingLastPathComponent().appendingPathComponent("MacML_MacML.bundle/Contents/Resources/Scripts/train_yolov8.py").path,
+            FileManager.default.currentDirectoryPath + "/Resources/Scripts/train_yolov8.py"
         ].compactMap { $0 }
 
         if let validPath = possiblePaths.first(where: { FileManager.default.fileExists(atPath: $0) }) {

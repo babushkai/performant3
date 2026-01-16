@@ -2,14 +2,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "Performant3",
+    name: "MacML",
     platforms: [
         .macOS(.v14)
     ],
     products: [
         .executable(
-            name: "Performant3",
-            targets: ["Performant3"]
+            name: "MacML",
+            targets: ["MacML"]
         )
     ],
     dependencies: [
@@ -22,7 +22,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "Performant3",
+            name: "MacML",
             dependencies: [
                 .product(name: "MLX", package: "mlx-swift"),
                 .product(name: "MLXNN", package: "mlx-swift"),
@@ -31,13 +31,21 @@ let package = Package(
                 .product(name: "GRDB", package: "GRDB.swift"),
                 .product(name: "Crypto", package: "swift-crypto"),
             ],
-            path: "Sources/Performant3",
+            path: "Sources/MacML",
             resources: [
                 .copy("../../Resources/Scripts")
             ],
             swiftSettings: [
                 .unsafeFlags(["-parse-as-library"])
             ]
+        ),
+        .testTarget(
+            name: "MacMLTests",
+            dependencies: [
+                "MacML",
+                .product(name: "GRDB", package: "GRDB.swift"),
+            ],
+            path: "Tests/MacMLTests"
         ),
     ]
 )

@@ -29,8 +29,8 @@ permissions:
   contents: write
 
 env:
-  APP_NAME: Performant3
-  BUNDLE_ID: com.performant3.app
+  APP_NAME: MacML
+  BUNDLE_ID: com.macml.app
 
 jobs:
   build-and-release:
@@ -106,7 +106,7 @@ jobs:
           echo "Building $APP_NAME version $VERSION..."
 
           # Build with xcodebuild (required for Metal shader compilation)
-          xcodebuild -scheme Performant3 \
+          xcodebuild -scheme MacML \
             -destination 'platform=macOS' \
             -configuration Release \
             -derivedDataPath "${{ runner.temp }}/DerivedData" \
@@ -130,7 +130,7 @@ jobs:
           mkdir -p "$APP_DIR/Contents/Frameworks"
 
           # Copy executable
-          cp "$DERIVED_DATA/Performant3" "$APP_DIR/Contents/MacOS/"
+          cp "$DERIVED_DATA/MacML" "$APP_DIR/Contents/MacOS/"
 
           # Update Info.plist with version
           cp Info.plist "$APP_DIR/Contents/"
@@ -267,13 +267,13 @@ jobs:
           CHANGELOG=$(cat changelog.txt)
 
           cat << 'EOF' > release_notes.md
-          ## Performant3 v${{ steps.version.outputs.version }}
+          ## MacML v${{ steps.version.outputs.version }}
 
           ### Installation
 
           1. Download `Performant3-${{ steps.version.outputs.version }}.dmg`
           2. Open the DMG file
-          3. Drag **Performant3** to your Applications folder
+          3. Drag **MacML** to your Applications folder
           4. Launch from Applications
 
           > **Note:** On first launch, right-click and select "Open" if you see a Gatekeeper warning (for ad-hoc signed builds).
@@ -321,7 +321,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
-          name: Performant3 v${{ steps.version.outputs.version }}
+          name: MacML v${{ steps.version.outputs.version }}
           body_path: release_notes.md
           draft: ${{ inputs.draft || false }}
           prerelease: ${{ inputs.prerelease || contains(steps.version.outputs.version, '-') }}

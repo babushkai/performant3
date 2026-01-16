@@ -4,14 +4,14 @@ import MLXNN
 import AppKit
 import os.log
 
-private let inferenceLogger = Logger(subsystem: "com.performant3", category: "Inference")
+private let inferenceLogger = Logger(subsystem: "com.macml", category: "Inference")
 
 // Helper to log to both console and file
 private func debugLog(_ message: String) {
     inferenceLogger.info("\(message)")
     // Also write to file for easy access
     let logFile = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent("Performant3/inference_debug.log")
+        .appendingPathComponent("MacML/inference_debug.log")
     let timestamp = ISO8601DateFormatter().string(from: Date())
     let logLine = "[\(timestamp)] \(message)\n"
     if let data = logLine.data(using: .utf8) {

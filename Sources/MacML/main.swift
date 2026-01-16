@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct Performant3App: App {
+struct MacMLApp: App {
     @StateObject private var appState = AppState()
 
     var body: some Scene {
@@ -201,10 +201,10 @@ class AppState: ObservableObject {
             try await DatabaseManager.shared.setup()
             databaseInitialized = true
         } catch {
-            print("[Performant3] Database initialization failed: \(error.localizedDescription)")
+            print("[MacML] Database initialization failed: \(error.localizedDescription)")
             // Continue with JSON storage as fallback
             #if DEBUG
-            print("[Performant3] Debug: Full error details - \(error)")
+            print("[MacML] Debug: Full error details - \(error)")
             #endif
         }
     }
@@ -291,7 +291,7 @@ class AppState: ObservableObject {
             }
 
             #if DEBUG
-            print("[Performant3] Cleaned up \(staleCount) stale training run(s) from previous session")
+            print("[MacML] Cleaned up \(staleCount) stale training run(s) from previous session")
             #endif
         }
     }

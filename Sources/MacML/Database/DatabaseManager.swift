@@ -12,9 +12,9 @@ actor DatabaseManager {
 
     private var databaseURL: URL {
         let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let appDir = appSupport.appendingPathComponent("Performant3", isDirectory: true)
+        let appDir = appSupport.appendingPathComponent("MacML", isDirectory: true)
         try? fileManager.createDirectory(at: appDir, withIntermediateDirectories: true)
-        return appDir.appendingPathComponent("performant3.sqlite")
+        return appDir.appendingPathComponent("macml.sqlite")
     }
 
     // MARK: - Setup

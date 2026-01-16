@@ -10,8 +10,8 @@ permissions:
   pull-requests: read
 
 env:
-  APP_NAME: Performant3
-  BUNDLE_ID: com.performant3.app
+  APP_NAME: MacML
+  BUNDLE_ID: com.macml.app
 
 jobs:
   check-release:
@@ -210,7 +210,7 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           echo "Building $APP_NAME version $VERSION..."
-          xcodebuild -scheme Performant3 \
+          xcodebuild -scheme MacML \
             -destination 'platform=macOS' \
             -configuration Release \
             -derivedDataPath "${{ runner.temp }}/DerivedData" \
@@ -230,7 +230,7 @@ jobs:
           mkdir -p "$APP_DIR/Contents/Resources"
           mkdir -p "$APP_DIR/Contents/Frameworks"
 
-          cp "$DERIVED_DATA/Performant3" "$APP_DIR/Contents/MacOS/"
+          cp "$DERIVED_DATA/MacML" "$APP_DIR/Contents/MacOS/"
 
           cp Info.plist "$APP_DIR/Contents/"
           /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP_DIR/Contents/Info.plist"
@@ -320,7 +320,7 @@ jobs:
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
 
           cat << EOF > release_notes.md
-          ## Performant3 v${VERSION}
+          ## MacML v${VERSION}
 
           ### What's Changed
 
@@ -341,7 +341,7 @@ jobs:
 
           1. Download \`${APP_NAME}-${VERSION}.dmg\`
           2. Open the DMG file
-          3. Drag **Performant3** to your Applications folder
+          3. Drag **MacML** to your Applications folder
 
           > **Note:** On first launch, right-click and select "Open" if you see a Gatekeeper warning.
 
@@ -370,7 +370,7 @@ jobs:
           git push origin "v$VERSION"
 
           gh release create "v$VERSION" \
-            --title "Performant3 v$VERSION" \
+            --title "MacML v$VERSION" \
             --notes-file release_notes.md \
             "${{ env.dmg_path }}" \
             "${{ env.zip_path }}"

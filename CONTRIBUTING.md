@@ -1,6 +1,6 @@
-# Contributing to Performant3
+# Contributing to MacML
 
-Thank you for your interest in contributing to Performant3!
+Thank you for your interest in contributing to MacML!
 
 ## Development Setup
 
@@ -15,8 +15,8 @@ Thank you for your interest in contributing to Performant3!
 
 ```bash
 # Clone the repository
-git clone https://github.com/babushkai/performant3.git
-cd performant3
+git clone https://github.com/babushkai/macml.git
+cd macml
 
 # Resolve dependencies
 swift package resolve
