@@ -563,14 +563,23 @@ enum L {
     static var importBtn: String { String(localized: "import_btn", bundle: .module) }
 
     // MARK: - Distillation
+    static var distillation: String { String(localized: "distillation", bundle: .module) }
     static var distillationRuns: String { String(localized: "distillation_runs", bundle: .module) }
     static var noDistillationRuns: String { String(localized: "no_distillation_runs", bundle: .module) }
-    static var createDistillationDescription: String { String(localized: "create_distillation_description", bundle: .module) }
+    static var distillationDescription: String { String(localized: "distillation_description", bundle: .module) }
     static var selectDistillationRun: String { String(localized: "select_distillation_run", bundle: .module) }
     static var configuration: String { String(localized: "configuration", bundle: .module) }
     static var logs: String { String(localized: "logs", bundle: .module) }
     static var noLogsYet: String { String(localized: "no_logs_yet", bundle: .module) }
     static var progress: String { String(localized: "progress", bundle: .module) }
+    static var samplesGenerated: String { String(localized: "samples_generated", bundle: .module) }
+    static var apiCalls: String { String(localized: "api_calls", bundle: .module) }
+    static var estimatedCost: String { String(localized: "estimated_cost", bundle: .module) }
+    static var studentAccuracy: String { String(localized: "student_accuracy", bundle: .module) }
+    static var compressionRatio: String { String(localized: "compression_ratio", bundle: .module) }
+    static var teacher: String { String(localized: "teacher", bundle: .module) }
+    static var provider: String { String(localized: "provider", bundle: .module) }
+    static var studentArchitecture: String { String(localized: "student_architecture", bundle: .module) }
 
     // MARK: - Distillation Wizard
     static var newDistillation: String { String(localized: "new_distillation", bundle: .module) }
