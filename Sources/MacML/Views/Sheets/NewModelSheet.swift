@@ -45,7 +45,7 @@ struct NewModelSheet: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("Import Model")
+                Text(L.importModelTitle)
                     .font(.title2)
                     .fontWeight(.bold)
                 Spacer()
@@ -110,7 +110,7 @@ struct NewModelSheet: View {
                 Text("1.")
                     .font(.headline)
                     .foregroundColor(.accentColor)
-                Text("Select Model File")
+                Text(L.selectModelFile)
                     .font(.headline)
             }
 
@@ -128,7 +128,7 @@ struct NewModelSheet: View {
                             .lineLimit(1)
                     }
                     Spacer()
-                    Button("Change") { selectFile() }
+                    Button(L.change) { selectFile() }
                         .buttonStyle(.bordered)
                         .disabled(isConverting)
                 }
@@ -141,7 +141,7 @@ struct NewModelSheet: View {
                         Image(systemName: "folder.badge.plus")
                             .font(.title2)
                         VStack(alignment: .leading) {
-                            Text("Choose Model File...")
+                            Text(L.chooseModelFile)
                                 .fontWeight(.medium)
                             Text(".mlmodel, .mlmodelc, .mlpackage, .pt, .pth")
                                 .font(.caption)
@@ -168,9 +168,9 @@ struct NewModelSheet: View {
                 .font(.title3)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("PyTorch Model Detected")
+                Text(L.pytorchModelDetected)
                     .fontWeight(.semibold)
-                Text("This model will be converted to a compatible format before import.")
+                Text(L.pytorchConversionNote)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -188,11 +188,11 @@ struct NewModelSheet: View {
                 Text("2.")
                     .font(.headline)
                     .foregroundColor(selectedURL != nil ? .accentColor : .secondary)
-                Text("Model Name")
+                Text(L.modelName)
                     .font(.headline)
                     .foregroundColor(selectedURL != nil ? .primary : .secondary)
             }
-            TextField("Enter model name", text: $name)
+            TextField(L.modelName, text: $name)
                 .textFieldStyle(.roundedBorder)
                 .disabled(selectedURL == nil || isConverting)
         }
@@ -204,7 +204,7 @@ struct NewModelSheet: View {
                 Text("3.")
                     .font(.headline)
                     .foregroundColor(selectedURL != nil ? .accentColor : .secondary)
-                Text("Framework")
+                Text(L.framework)
                     .font(.headline)
                     .foregroundColor(selectedURL != nil ? .primary : .secondary)
             }
@@ -226,7 +226,7 @@ struct NewModelSheet: View {
                     Text("3.")
                         .font(.headline)
                         .foregroundColor(.accentColor)
-                    Text("Target Format")
+                    Text(L.targetFormat)
                         .font(.headline)
                 }
 
@@ -249,11 +249,11 @@ struct NewModelSheet: View {
                     Text("4.")
                         .font(.headline)
                         .foregroundColor(.accentColor)
-                    Text("Input Shape")
+                    Text(L.inputShape)
                         .font(.headline)
                 }
 
-                Text("Specify the input dimensions the model expects")
+                Text(L.specifyInputDimensions)
                     .font(.caption)
                     .foregroundColor(.secondary)
 
@@ -286,7 +286,7 @@ struct NewModelSheet: View {
                 // Custom shape input
                 if inputShapePreset == .custom {
                     HStack(spacing: 8) {
-                        Text("Shape:")
+                        Text(L.shape + ":")
                             .font(.caption)
                             .foregroundColor(.secondary)
 
@@ -305,7 +305,7 @@ struct NewModelSheet: View {
                             .disabled(isConverting)
                         }
 
-                        Text("(batch, channels, H, W)")
+                        Text(L.batchChannelsHW)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -326,7 +326,7 @@ struct NewModelSheet: View {
             HStack {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundColor(.red)
-                Text("Error")
+                Text(L.error)
                     .fontWeight(.semibold)
                     .foregroundColor(.red)
             }
@@ -364,7 +364,7 @@ struct NewModelSheet: View {
                     .fontWeight(.medium)
             }
 
-            Text("This may take a few minutes for large models.")
+            Text(L.conversionNote)
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
@@ -375,7 +375,7 @@ struct NewModelSheet: View {
 
     private var footerSection: some View {
         HStack {
-            Button("Cancel") {
+            Button(L.cancel) {
                 if isConverting {
                     Task {
                         await ModelConversionService.shared.cancel()

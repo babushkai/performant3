@@ -70,7 +70,7 @@ struct NewRunSheet: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("New Training Run")
+                Text(L.newTrainingRunTitle)
                     .font(.title2)
                     .fontWeight(.bold)
                 Spacer()
@@ -90,22 +90,22 @@ struct NewRunSheet: View {
                 VStack(alignment: .leading, spacing: 20) {
                     // Run Name
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Run Name")
+                        Text(L.runName)
                             .font(.headline)
-                        TextField("Enter run name", text: $name)
+                        TextField(L.runName, text: $name)
                             .textFieldStyle(.roundedBorder)
                     }
 
                     // Model Selection
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Model")
+                        Text(L.model)
                             .font(.headline)
 
                         if appState.models.isEmpty {
                             HStack {
                                 Image(systemName: "exclamationmark.triangle")
                                     .foregroundColor(.orange)
-                                Text("No models available")
+                                Text(L.noModelsAvailableMsg)
                                     .foregroundColor(.secondary)
                             }
                             .padding()
@@ -114,7 +114,7 @@ struct NewRunSheet: View {
                             .cornerRadius(8)
                         } else {
                             Picker("", selection: $selectedModelId) {
-                                Text("Select a model").tag(nil as String?)
+                                Text(L.selectAModel).tag(nil as String?)
                                 ForEach(appState.models) { model in
                                     HStack {
                                         Image(systemName: model.framework.icon)
@@ -129,11 +129,11 @@ struct NewRunSheet: View {
 
                     // Dataset Selection (Optional)
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Dataset (Optional)")
+                        Text(L.datasetOptional)
                             .font(.headline)
 
                         Picker("", selection: $selectedDatasetId) {
-                            Text("No dataset").tag(nil as String?)
+                            Text(L.noDataset).tag(nil as String?)
                             ForEach(appState.datasets) { dataset in
                                 HStack {
                                     Image(systemName: dataset.type.icon)
@@ -147,14 +147,14 @@ struct NewRunSheet: View {
 
                     // Experiment Selection (Optional) - for experiment tracking
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Experiment (Optional)")
+                        Text(L.experimentOptional)
                             .font(.headline)
 
                         if experiments.isEmpty {
                             HStack {
                                 Image(systemName: "flask")
                                     .foregroundColor(.secondary)
-                                Text("No experiments available")
+                                Text(L.noExperimentsAvailable)
                                     .foregroundColor(.secondary)
                             }
                             .padding()
@@ -163,7 +163,7 @@ struct NewRunSheet: View {
                             .cornerRadius(8)
                         } else {
                             Picker("", selection: $selectedExperimentId) {
-                                Text("No experiment").tag(nil as String?)
+                                Text(L.noExperiment).tag(nil as String?)
                                 ForEach(experiments) { experiment in
                                     Text(experiment.name).tag(experiment.id as String?)
                                 }
@@ -171,14 +171,14 @@ struct NewRunSheet: View {
                             .pickerStyle(.menu)
                         }
 
-                        Text("Link this run to an experiment for organized tracking and comparison.")
+                        Text(L.linkExperimentDescription)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
 
                     // Architecture Selection
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Model Architecture")
+                        Text(L.modelArchitecture)
                             .font(.headline)
 
                         LazyVGrid(columns: [
@@ -197,12 +197,12 @@ struct NewRunSheet: View {
 
                     // Basic Configuration
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Training Parameters")
+                        Text(L.trainingParameters)
                             .font(.headline)
 
                         VStack(spacing: 16) {
                             ConfigSlider(
-                                title: "Epochs",
+                                title: L.epochs,
                                 value: Binding(
                                     get: { Double(config.epochs) },
                                     set: { config.epochs = Int($0) }
@@ -212,7 +212,7 @@ struct NewRunSheet: View {
                             )
 
                             ConfigSlider(
-                                title: "Batch Size",
+                                title: L.batchSize,
                                 value: Binding(
                                     get: { Double(config.batchSize) },
                                     set: { config.batchSize = Int($0) }
@@ -222,7 +222,7 @@ struct NewRunSheet: View {
                             )
 
                             ConfigSlider(
-                                title: "Learning Rate",
+                                title: L.learningRate,
                                 value: $config.learningRate,
                                 range: 0.00001...0.1,
                                 format: "%.5f"
@@ -238,7 +238,7 @@ struct NewRunSheet: View {
                         VStack(alignment: .leading, spacing: 16) {
                             // Optimizer
                             HStack {
-                                Text("Optimizer")
+                                Text(L.optimizer)
                                 Spacer()
                                 Picker("", selection: $config.optimizer) {
                                     ForEach(Optimizer.allCases, id: \.self) { opt in
@@ -250,7 +250,7 @@ struct NewRunSheet: View {
 
                             // Loss Function
                             HStack {
-                                Text("Loss Function")
+                                Text(L.lossFunction)
                                 Spacer()
                                 Picker("", selection: $config.lossFunction) {
                                     ForEach(LossFunction.allCases, id: \.self) { loss in
@@ -262,7 +262,7 @@ struct NewRunSheet: View {
 
                             // Validation Split
                             ConfigSlider(
-                                title: "Validation Split",
+                                title: L.validationSplit,
                                 value: $config.validationSplit,
                                 range: 0.1...0.5,
                                 format: "%.0f%%",
@@ -274,7 +274,7 @@ struct NewRunSheet: View {
 
                             if config.earlyStopping {
                                 HStack {
-                                    Text("Patience")
+                                    Text(L.patience)
                                     Spacer()
                                     Stepper("\(config.patience) epochs", value: $config.patience, in: 1...20)
                                 }
@@ -284,7 +284,7 @@ struct NewRunSheet: View {
 
                             // Learning Rate Scheduler
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Learning Rate Scheduler")
+                                Text(L.learningRateScheduler)
                                     .font(.subheadline)
                                     .fontWeight(.medium)
 
@@ -301,12 +301,12 @@ struct NewRunSheet: View {
 
                                 if config.lrScheduler == .step {
                                     HStack {
-                                        Text("Decay every")
+                                        Text(L.decayEvery)
                                         Spacer()
                                         Stepper("\(config.lrDecaySteps) epochs", value: $config.lrDecaySteps, in: 1...50)
                                     }
                                     HStack {
-                                        Text("Decay factor")
+                                        Text(L.decayFactor)
                                         Spacer()
                                         Text(String(format: "%.2f", config.lrDecayFactor))
                                         Slider(value: $config.lrDecayFactor, in: 0.1...0.9)
@@ -316,7 +316,7 @@ struct NewRunSheet: View {
 
                                 if config.lrScheduler == .warmupCosine || config.lrScheduler == .oneCycle {
                                     HStack {
-                                        Text("Warmup epochs")
+                                        Text(L.warmupEpochs)
                                         Spacer()
                                         Stepper("\(config.warmupEpochs)", value: $config.warmupEpochs, in: 1...20)
                                     }
@@ -324,7 +324,7 @@ struct NewRunSheet: View {
 
                                 if config.lrScheduler != .none {
                                     HStack {
-                                        Text("Minimum LR")
+                                        Text(L.minimumLR)
                                         Spacer()
                                         TextField("", value: $config.lrMinimum, format: .number)
                                             .frame(width: 80)
@@ -337,7 +337,7 @@ struct NewRunSheet: View {
 
                             // Data Augmentation
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Data Augmentation")
+                                Text(L.dataAugmentation)
                                     .font(.subheadline)
                                     .fontWeight(.medium)
 
@@ -390,7 +390,7 @@ struct NewRunSheet: View {
 
                             // Checkpointing
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Checkpointing")
+                                Text(L.checkpointing)
                                     .font(.subheadline)
                                     .fontWeight(.medium)
 
@@ -398,13 +398,13 @@ struct NewRunSheet: View {
 
                                 if config.saveCheckpoints {
                                     HStack {
-                                        Text("Save every")
+                                        Text(L.saveEvery)
                                         Spacer()
                                         Stepper("\(config.checkpointFrequency) epochs", value: $config.checkpointFrequency, in: 1...100)
                                     }
 
                                     HStack {
-                                        Text("Keep last")
+                                        Text(L.keepLast)
                                         Spacer()
                                         Stepper("\(config.keepCheckpoints) checkpoints", value: $config.keepCheckpoints, in: 1...10)
                                     }
@@ -415,14 +415,14 @@ struct NewRunSheet: View {
 
                             // Dataset Fallback
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Dataset Options")
+                                Text(L.datasetOptions)
                                     .font(.subheadline)
                                     .fontWeight(.medium)
 
                                 Toggle("Allow synthetic data fallback", isOn: $config.allowSyntheticFallback)
 
                                 if config.allowSyntheticFallback {
-                                    Text("When enabled, training will use synthetic (random) data if no dataset is selected or if dataset loading fails. Models trained on synthetic data are for demonstration only.")
+                                    Text(L.syntheticDataDescription)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
@@ -432,7 +432,7 @@ struct NewRunSheet: View {
                                         Image(systemName: "exclamationmark.triangle.fill")
                                             .foregroundColor(.orange)
                                             .font(.caption)
-                                        Text("No dataset selected. Training will fail unless you select a dataset or enable synthetic fallback.")
+                                        Text(L.noDatasetWarning)
                                             .font(.caption)
                                             .foregroundColor(.orange)
                                     }
@@ -470,7 +470,7 @@ struct NewRunSheet: View {
 
             // Footer
             HStack {
-                Button("Cancel") { dismiss() }
+                Button(L.cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
 
                 Spacer()
@@ -480,7 +480,7 @@ struct NewRunSheet: View {
                         ProgressView()
                             .scaleEffect(0.7)
                     } else {
-                        Text("Start Training")
+                        Text(L.startTraining)
                     }
                 }
                 .buttonStyle(.borderedProminent)

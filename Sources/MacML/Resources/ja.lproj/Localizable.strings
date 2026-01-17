@@ -372,3 +372,123 @@
 "n_output_classes %lld" = "出力クラス (%lld)";
 "class_index %lld" = "クラス %lld:";
 "n_completed_runs %lld" = "%lld件の完了した学習実行がありますが、モデルはまだ登録されていません。";
+
+/* New Training Run Sheet */
+"new_training_run_title" = "新規学習実行";
+"select_a_model" = "モデルを選択";
+"no_models_available_msg" = "利用可能なモデルがありません。まずモデルを読み込むか作成してください。";
+"dataset_optional" = "データセット（オプション）";
+"no_dataset" = "データセットなし";
+"experiment_optional" = "実験（オプション）";
+"no_experiments_available" = "利用可能な実験がありません";
+"no_experiment" = "実験なし";
+"link_experiment_description" = "整理と比較のためにこの実行を実験にリンク";
+"training_parameters" = "学習パラメータ";
+"optimizer" = "オプティマイザ";
+"loss_function" = "損失関数";
+"patience" = "早期停止の許容回数";
+"learning_rate_scheduler" = "学習率スケジューラ";
+"decay_every" = "減衰間隔";
+"decay_factor" = "減衰率";
+"warmup_epochs" = "ウォームアップエポック";
+"minimum_lr" = "最小学習率";
+"checkpointing" = "チェックポイント";
+"save_every" = "保存間隔";
+"keep_last" = "保持数";
+"dataset_options" = "データセットオプション";
+"synthetic_data_description" = "学習用の合成データを生成";
+"no_dataset_warning" = "データセットが選択されていません。合成データを使用して学習します。";
+
+/* Import Model Sheet */
+"import_model_title" = "モデルを読み込む";
+"select_model_file" = "モデルファイルを選択";
+"pytorch_model_detected" = "PyTorchモデルを検出";
+"pytorch_conversion_note" = "このモデルはCoreML形式に変換されます";
+"target_format" = "対象フォーマット";
+"specify_input_dimensions" = "入力次元を指定";
+"shape" = "形状";
+"batch_channels_hw" = "バッチ、チャンネル、高さ、幅";
+"conversion_note" = "モデルサイズによって変換に時間がかかる場合があります";
+
+/* Import Dataset Sheet */
+"import_dataset_title" = "データセットを読み込む";
+"source_folder" = "ソースフォルダ";
+"select_folder" = "フォルダを選択";
+"import_btn" = "読み込む";
+
+/* Distillation */
+"distillation_runs" = "蒸留実行";
+"no_distillation_runs" = "蒸留実行がありません";
+"create_distillation_description" = "大きなモデルから小さなモデルに知識を転送する蒸留実行を作成";
+"select_distillation_run" = "蒸留実行を選択";
+"configuration" = "設定";
+"logs" = "ログ";
+"no_logs_yet" = "ログはまだありません";
+"progress" = "進捗";
+
+/* Distillation Wizard */
+"new_distillation" = "新規蒸留";
+"define_your_task" = "タスクを定義";
+"task_description_hint" = "生徒モデルに学習させたいタスクを説明してください";
+"task_description" = "タスクの説明";
+"task_example" = "例：画像を10カテゴリに分類";
+"select_teacher_model" = "教師モデルを選択";
+"teacher_model_hint" = "生徒を教える大規模で高性能なモデルを選択";
+"cloud_provider" = "クラウドプロバイダー";
+"configure_student_model" = "生徒モデルを設定";
+"student_model_hint" = "教師から学習する小さなモデルを設定";
+"synthetic_samples" = "合成サンプル";
+"review_configuration" = "設定を確認";
+"review_config_hint" = "開始前に蒸留設定を確認してください";
+"estimated_api_cost" = "推定API費用";
+
+/* Model Export */
+"export_model" = "モデルを書き出す";
+"successfully_exported" = "正常に書き出しました";
+"source" = "ソース";
+"export_format" = "書き出し形式";
+"output" = "出力";
+"export_complete" = "書き出し完了";
+
+/* Experiments */
+"projects" = "プロジェクト";
+"experiments_label" = "実験";
+"choose_project_to_view" = "プロジェクトを選択して実験を表示";
+"choose_experiment_to_view" = "実験を選択して詳細を表示";
+"new_project" = "新規プロジェクト";
+"new_experiment" = "新規実験";
+
+/* Hyperparameter Tuning */
+"select_study_hint" = "詳細と結果を表示するスタディを選択";
+"overview" = "概要";
+"trials" = "試行";
+"parameters" = "パラメータ";
+"analysis" = "分析";
+"active_studies" = "アクティブなスタディ";
+"completed_studies" = "完了したスタディ";
+"new_tuning_study" = "新規チューニングスタディ";
+"minimize_loss" = "損失を最小化";
+"maximize_accuracy" = "精度を最大化";
+
+/* Live Training Chart */
+"training_progress" = "学習進捗";
+"live" = "ライブ";
+"waiting_for_training_data" = "学習データを待機中...";
+"system_resources" = "システムリソース";
+
+/* Common UI */
+"tags" = "タグ";
+"name" = "名前";
+"checking" = "確認中...";
+"usage" = "使用状況";
+
+/* Dashboard extras */
+"load_demo_data_btn" = "デモデータを読み込む";
+"no_datasets_available" = "利用可能なデータセットがありません";
+
+/* Count formats */
+"n_runs %lld" = "%lld件の実行";
+"trials_progress %lld %lld" = "%lld/%lld 試行";
+"comparing_runs %lld" = "%lld件の実行を比較中";
+"temperature_value %@" = "温度: %@";
+"alpha_value %@" = "アルファ: %@";

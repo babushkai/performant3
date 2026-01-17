@@ -518,4 +518,137 @@ enum L {
     static func nCompletedRuns(_ count: Int) -> String {
         String(localized: "n_completed_runs \(count)", bundle: .module)
     }
+
+    // MARK: - New Training Run Sheet
+    static var newTrainingRunTitle: String { String(localized: "new_training_run_title", bundle: .module) }
+    static var selectAModel: String { String(localized: "select_a_model", bundle: .module) }
+    static var noModelsAvailableMsg: String { String(localized: "no_models_available_msg", bundle: .module) }
+    static var datasetOptional: String { String(localized: "dataset_optional", bundle: .module) }
+    static var noDataset: String { String(localized: "no_dataset", bundle: .module) }
+    static var experimentOptional: String { String(localized: "experiment_optional", bundle: .module) }
+    static var noExperimentsAvailable: String { String(localized: "no_experiments_available", bundle: .module) }
+    static var noExperiment: String { String(localized: "no_experiment", bundle: .module) }
+    static var linkExperimentDescription: String { String(localized: "link_experiment_description", bundle: .module) }
+    static var trainingParameters: String { String(localized: "training_parameters", bundle: .module) }
+    static var optimizer: String { String(localized: "optimizer", bundle: .module) }
+    static var lossFunction: String { String(localized: "loss_function", bundle: .module) }
+    static var patience: String { String(localized: "patience", bundle: .module) }
+    static var learningRateScheduler: String { String(localized: "learning_rate_scheduler", bundle: .module) }
+    static var decayEvery: String { String(localized: "decay_every", bundle: .module) }
+    static var decayFactor: String { String(localized: "decay_factor", bundle: .module) }
+    static var warmupEpochs: String { String(localized: "warmup_epochs", bundle: .module) }
+    static var minimumLR: String { String(localized: "minimum_lr", bundle: .module) }
+    static var checkpointing: String { String(localized: "checkpointing", bundle: .module) }
+    static var saveEvery: String { String(localized: "save_every", bundle: .module) }
+    static var keepLast: String { String(localized: "keep_last", bundle: .module) }
+    static var datasetOptions: String { String(localized: "dataset_options", bundle: .module) }
+    static var syntheticDataDescription: String { String(localized: "synthetic_data_description", bundle: .module) }
+    static var noDatasetWarning: String { String(localized: "no_dataset_warning", bundle: .module) }
+
+    // MARK: - Import Model Sheet
+    static var importModelTitle: String { String(localized: "import_model_title", bundle: .module) }
+    static var selectModelFile: String { String(localized: "select_model_file", bundle: .module) }
+    static var pytorchModelDetected: String { String(localized: "pytorch_model_detected", bundle: .module) }
+    static var pytorchConversionNote: String { String(localized: "pytorch_conversion_note", bundle: .module) }
+    static var targetFormat: String { String(localized: "target_format", bundle: .module) }
+    static var specifyInputDimensions: String { String(localized: "specify_input_dimensions", bundle: .module) }
+    static var shape: String { String(localized: "shape", bundle: .module) }
+    static var batchChannelsHW: String { String(localized: "batch_channels_hw", bundle: .module) }
+    static var conversionNote: String { String(localized: "conversion_note", bundle: .module) }
+
+    // MARK: - Import Dataset Sheet
+    static var importDatasetTitle: String { String(localized: "import_dataset_title", bundle: .module) }
+    static var sourceFolder: String { String(localized: "source_folder", bundle: .module) }
+    static var selectFolder: String { String(localized: "select_folder", bundle: .module) }
+    static var importBtn: String { String(localized: "import_btn", bundle: .module) }
+
+    // MARK: - Distillation
+    static var distillationRuns: String { String(localized: "distillation_runs", bundle: .module) }
+    static var noDistillationRuns: String { String(localized: "no_distillation_runs", bundle: .module) }
+    static var createDistillationDescription: String { String(localized: "create_distillation_description", bundle: .module) }
+    static var selectDistillationRun: String { String(localized: "select_distillation_run", bundle: .module) }
+    static var configuration: String { String(localized: "configuration", bundle: .module) }
+    static var logs: String { String(localized: "logs", bundle: .module) }
+    static var noLogsYet: String { String(localized: "no_logs_yet", bundle: .module) }
+    static var progress: String { String(localized: "progress", bundle: .module) }
+
+    // MARK: - Distillation Wizard
+    static var newDistillation: String { String(localized: "new_distillation", bundle: .module) }
+    static var defineYourTask: String { String(localized: "define_your_task", bundle: .module) }
+    static var taskDescriptionHint: String { String(localized: "task_description_hint", bundle: .module) }
+    static var taskDescription: String { String(localized: "task_description", bundle: .module) }
+    static var taskExample: String { String(localized: "task_example", bundle: .module) }
+    static var selectTeacherModel: String { String(localized: "select_teacher_model", bundle: .module) }
+    static var teacherModelHint: String { String(localized: "teacher_model_hint", bundle: .module) }
+    static var cloudProvider: String { String(localized: "cloud_provider", bundle: .module) }
+    static var configureStudentModel: String { String(localized: "configure_student_model", bundle: .module) }
+    static var studentModelHint: String { String(localized: "student_model_hint", bundle: .module) }
+    static var syntheticSamples: String { String(localized: "synthetic_samples", bundle: .module) }
+    static var reviewConfiguration: String { String(localized: "review_configuration", bundle: .module) }
+    static var reviewConfigHint: String { String(localized: "review_config_hint", bundle: .module) }
+    static var estimatedAPICost: String { String(localized: "estimated_api_cost", bundle: .module) }
+
+    // MARK: - Model Export
+    static var exportModel: String { String(localized: "export_model", bundle: .module) }
+    static var successfullyExported: String { String(localized: "successfully_exported", bundle: .module) }
+    static var source: String { String(localized: "source", bundle: .module) }
+    static var exportFormat: String { String(localized: "export_format", bundle: .module) }
+    static var output: String { String(localized: "output", bundle: .module) }
+    static var exportComplete: String { String(localized: "export_complete", bundle: .module) }
+
+    // MARK: - Experiments
+    static var projects: String { String(localized: "projects", bundle: .module) }
+    static var experimentsLabel: String { String(localized: "experiments_label", bundle: .module) }
+    static var chooseProjectToView: String { String(localized: "choose_project_to_view", bundle: .module) }
+    static var chooseExperimentToView: String { String(localized: "choose_experiment_to_view", bundle: .module) }
+    static var newProject: String { String(localized: "new_project", bundle: .module) }
+    static var newExperiment: String { String(localized: "new_experiment", bundle: .module) }
+
+    // MARK: - Hyperparameter Tuning
+    static var selectStudyHint: String { String(localized: "select_study_hint", bundle: .module) }
+    static var overview: String { String(localized: "overview", bundle: .module) }
+    static var trials: String { String(localized: "trials", bundle: .module) }
+    static var parameters: String { String(localized: "parameters", bundle: .module) }
+    static var analysis: String { String(localized: "analysis", bundle: .module) }
+    static var activeStudies: String { String(localized: "active_studies", bundle: .module) }
+    static var completedStudies: String { String(localized: "completed_studies", bundle: .module) }
+    static var newTuningStudy: String { String(localized: "new_tuning_study", bundle: .module) }
+    static var minimizeLoss: String { String(localized: "minimize_loss", bundle: .module) }
+    static var maximizeAccuracy: String { String(localized: "maximize_accuracy", bundle: .module) }
+
+    // MARK: - Live Training Chart
+    static var trainingProgress: String { String(localized: "training_progress", bundle: .module) }
+    static var live: String { String(localized: "live", bundle: .module) }
+    static var waitingForTrainingData: String { String(localized: "waiting_for_training_data", bundle: .module) }
+    static var systemResources: String { String(localized: "system_resources", bundle: .module) }
+
+    // MARK: - Common UI
+    static var tags: String { String(localized: "tags", bundle: .module) }
+    static var name: String { String(localized: "name", bundle: .module) }
+    static var checking: String { String(localized: "checking", bundle: .module) }
+    static var usage: String { String(localized: "usage", bundle: .module) }
+
+    // MARK: - Dashboard extras
+    static var loadDemoDataBtn: String { String(localized: "load_demo_data_btn", bundle: .module) }
+    static var noDatasetsAvailable: String { String(localized: "no_datasets_available", bundle: .module) }
+
+    static func nRuns(_ count: Int) -> String {
+        String(localized: "n_runs \(count)", bundle: .module)
+    }
+
+    static func trialsProgress(_ completed: Int, _ total: Int) -> String {
+        String(localized: "trials_progress \(completed) \(total)", bundle: .module)
+    }
+
+    static func comparingRuns(_ count: Int) -> String {
+        String(localized: "comparing_runs \(count)", bundle: .module)
+    }
+
+    static func temperatureValue(_ value: Double) -> String {
+        String(localized: "temperature_value \(String(format: "%.1f", value))", bundle: .module)
+    }
+
+    static func alphaValue(_ value: Double) -> String {
+        String(localized: "alpha_value \(String(format: "%.2f", value))", bundle: .module)
+    }
 }

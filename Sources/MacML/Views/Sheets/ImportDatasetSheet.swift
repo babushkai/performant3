@@ -33,7 +33,7 @@ struct ImportDatasetSheet: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("Import Dataset")
+                Text(L.importDatasetTitle)
                     .font(.title2)
                     .fontWeight(.bold)
                 Spacer()
@@ -52,15 +52,15 @@ struct ImportDatasetSheet: View {
             VStack(alignment: .leading, spacing: 20) {
                 // Dataset Name
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Dataset Name")
+                    Text(L.datasetName)
                         .font(.headline)
-                    TextField("Enter dataset name", text: $name)
+                    TextField(L.datasetName, text: $name)
                         .textFieldStyle(.roundedBorder)
                 }
 
                 // Type Selection
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Dataset Type")
+                    Text(L.datasetType)
                         .font(.headline)
 
                     LazyVGrid(columns: [
@@ -81,7 +81,7 @@ struct ImportDatasetSheet: View {
 
                 // Folder Selection
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Source Folder")
+                    Text(L.sourceFolder)
                         .font(.headline)
 
                     HStack {
@@ -97,13 +97,13 @@ struct ImportDatasetSheet: View {
                                     .lineLimit(1)
                             }
                             Spacer()
-                            Button("Change") { selectFolder() }
+                            Button(L.change) { selectFolder() }
                                 .buttonStyle(.borderless)
                         } else {
                             Button(action: selectFolder) {
                                 HStack {
                                     Image(systemName: "folder.badge.plus")
-                                    Text("Select Folder")
+                                    Text(L.selectFolder)
                                 }
                                 .frame(maxWidth: .infinity)
                             }
@@ -139,7 +139,7 @@ struct ImportDatasetSheet: View {
 
             // Footer
             HStack {
-                Button("Cancel") { dismiss() }
+                Button(L.cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
 
                 Spacer()
@@ -149,7 +149,7 @@ struct ImportDatasetSheet: View {
                         ProgressView()
                             .scaleEffect(0.7)
                     } else {
-                        Text("Import")
+                        Text(L.importBtn)
                     }
                 }
                 .buttonStyle(.borderedProminent)
