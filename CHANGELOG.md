@@ -5,17 +5,29 @@ All notable changes to MacML will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-01-17
+
+### ⚙️ Miscellaneous
+
+- Always build artifacts for PRs
+
+
+### 📚 Documentation
+
+- Update README with architecture documentation
+
+
+### 🚀 Features
+
+- **i18n:** Complete Japanese localization for sheets and dialogs
+
 ## [0.2.0] - 2026-01-17
 
 ### ⚙️ Miscellaneous
 
-- Bump version to 0.1.2 [skip ci]
-
 - Merge main into feat/japanese-localization
 
 - Add merge as allowed commit type in commitlint
-
-- Bump version to 0.2.0 [skip ci]
 
 
 ### 🐛 Bug Fixes
@@ -24,10 +36,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove duplicate StepIndicator and use existing one
 
+- **ci:** Improve release notes generation
+
 
 ### 📚 Documentation
 
 - Update CHANGELOG.md for v0.1.2 [skip ci]
+
+- Update CHANGELOG.md for v0.2.0 [skip ci]
 
 
 ### 🔨 Refactoring
@@ -51,10 +67,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### ⚙️ Miscellaneous
 
 - Add Dependabot auto-merge for patch updates
-
-- Bump version to 0.2.0 [skip ci]
-
-- Bump version to 0.1.1 [skip ci]
 
 
 ### ⚡ Performance
@@ -91,17 +103,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add UI testing infrastructure with BDD-style tests
 
-## [0.1.0] - 2026-01-16
-
-### ⚙️ Miscellaneous
-
-- Bump version to 0.1.0 [skip ci]
-
 ## [0.0.0-preview-ja] - 2026-01-16
 
 ### ⚙️ Miscellaneous
-
-- Bump version to 1.4.2 [skip ci]
 
 - Enhance CI workflow with coverage, security scans, and multi-Xcode testing
 
@@ -149,32 +153,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.1] - 2026-01-01
 
-### ⚙️ Miscellaneous
-
-- Bump version to 1.4.1 [skip ci]
-
-
 ### 🐛 Bug Fixes
 
 - Correct grayscale conversion for colored image preprocessing (#26)
 
 ## [1.4.0] - 2026-01-01
 
-### ⚙️ Miscellaneous
-
-- Bump version to 1.4.0 [skip ci]
-
-
 ### 🚀 Features
 
 - Apply modern design to all panes (#25)
 
 ## [1.3.3] - 2026-01-01
-
-### ⚙️ Miscellaneous
-
-- Bump version to 1.3.3 [skip ci]
-
 
 ### 🚀 Features
 
@@ -186,8 +175,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove placeholder data, keep only functional examples (#22)
 
-- Bump version to 1.3.2 [skip ci]
-
 
 ### 🐛 Bug Fixes
 
@@ -195,32 +182,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.1] - 2026-01-01
 
-### ⚙️ Miscellaneous
-
-- Bump version to 1.3.1 [skip ci]
-
-
 ### 🐛 Bug Fixes
 
 - Inference parameter loading and add preview/class editing (#21)
 
 ## [1.3.0] - 2025-12-31
 
-### ⚙️ Miscellaneous
-
-- Bump version to 1.3.0 [skip ci]
-
-
 ### 🚀 Features
 
 - Modern MLOps command center UI redesign (#20)
 
 ## [1.2.6] - 2025-12-31
-
-### ⚙️ Miscellaneous
-
-- Bump version to 1.2.6 [skip ci]
-
 
 ### 🐛 Bug Fixes
 
@@ -232,17 +204,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Better training defaults for MNIST accuracy (#18)
 
-
-### ⚙️ Miscellaneous
-
-- Bump version to 1.2.5 [skip ci]
-
 ## [1.2.4] - 2025-12-31
-
-### ⚙️ Miscellaneous
-
-- Bump version to 1.2.4 [skip ci]
-
 
 ### 🐛 Bug Fixes
 
@@ -250,32 +212,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.3] - 2025-12-31
 
-### ⚙️ Miscellaneous
-
-- Bump version to 1.2.3 [skip ci]
-
-
 ### 🐛 Bug Fixes
 
 - Implement real MNIST dataset loading (#16)
 
 ## [1.2.2] - 2025-12-31
 
-### ⚙️ Miscellaneous
-
-- Bump version to 1.2.2 [skip ci]
-
-
 ### 🐛 Bug Fixes
 
 - Redesign app icon with sophisticated style (#15)
 
 ## [1.2.1] - 2025-12-31
-
-### ⚙️ Miscellaneous
-
-- Bump version to 1.2.1 [skip ci]
-
 
 ### 🚀 Features
 
@@ -286,8 +233,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### ⚙️ Miscellaneous
 
 - Add contributing guidelines (#12)
-
-- Bump version to 1.2.0 [skip ci]
 
 
 ### 🔨 Refactoring
@@ -300,11 +245,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add PyTorch model conversion support (#13)
 
 ## [1.1.2] - 2025-12-31
-
-### ⚙️ Miscellaneous
-
-- Bump version to 1.1.2 [skip ci]
-
 
 ### 📦 Dependencies
 
@@ -322,21 +262,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.1] - 2025-12-31
 
-### ⚙️ Miscellaneous
-
-- Bump version to 1.1.1 [skip ci]
-
-
 ### 🐛 Bug Fixes
 
 - Improve database initialization error logging (#10)
 
 ## [1.1.0] - 2025-12-31
-
-### ⚙️ Miscellaneous
-
-- Bump version to 1.1.0 [skip ci]
-
 
 ### 🐛 Bug Fixes
 
@@ -354,8 +284,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### ⚙️ Miscellaneous
 
 - Add README with project documentation
-
-- Bump version to 1.0.1
 
 
 ### 🐛 Bug Fixes
