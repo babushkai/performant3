@@ -492,3 +492,23 @@
 "comparing_runs %lld" = "%lld件の実行を比較中";
 "temperature_value %@" = "温度: %@";
 "alpha_value %@" = "アルファ: %@";
+
+/* Distillation */
+"distillation" = "蒸留";
+"distillation_runs" = "蒸留実行";
+"no_distillation_runs" = "蒸留実行なし";
+"distillation_description" = "クラウドLLMから小型ローカルモデルを学習する新しい蒸留を作成";
+"new_distillation" = "新規蒸留";
+"select_distillation_run" = "蒸留実行を選択";
+"samples_generated" = "生成サンプル数";
+"api_calls" = "API呼び出し";
+"estimated_cost" = "推定コスト";
+"student_accuracy" = "生徒モデル精度";
+"compression_ratio" = "圧縮率";
+"teacher" = "教師";
+"provider" = "プロバイダー";
+"student_architecture" = "生徒アーキテクチャ";
+"no_logs_yet" = "ログがありません";
+"logs" = "ログ";
+"progress" = "進捗";
+"configuration" = "設定";
