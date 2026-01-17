@@ -372,3 +372,123 @@
 "n_output_classes %lld" = "Output Classes (%lld)";
 "class_index %lld" = "Class %lld:";
 "n_completed_runs %lld" = "You have %lld completed training run(s), but the models haven't been registered yet.";
+
+/* New Training Run Sheet */
+"new_training_run_title" = "New Training Run";
+"select_a_model" = "Select a model";
+"no_models_available_msg" = "No models available. Import or create a model first.";
+"dataset_optional" = "Dataset (Optional)";
+"no_dataset" = "No Dataset";
+"experiment_optional" = "Experiment (Optional)";
+"no_experiments_available" = "No experiments available";
+"no_experiment" = "No Experiment";
+"link_experiment_description" = "Link this run to an experiment for organization and comparison";
+"training_parameters" = "Training Parameters";
+"optimizer" = "Optimizer";
+"loss_function" = "Loss Function";
+"patience" = "Patience";
+"learning_rate_scheduler" = "Learning Rate Scheduler";
+"decay_every" = "Decay Every";
+"decay_factor" = "Decay Factor";
+"warmup_epochs" = "Warmup Epochs";
+"minimum_lr" = "Minimum LR";
+"checkpointing" = "Checkpointing";
+"save_every" = "Save Every";
+"keep_last" = "Keep Last";
+"dataset_options" = "Dataset Options";
+"synthetic_data_description" = "Generate synthetic data for training";
+"no_dataset_warning" = "No dataset selected. Training will use synthetic data.";
+
+/* Import Model Sheet */
+"import_model_title" = "Import Model";
+"select_model_file" = "Select Model File";
+"pytorch_model_detected" = "PyTorch Model Detected";
+"pytorch_conversion_note" = "This model will be converted to CoreML format";
+"target_format" = "Target Format";
+"specify_input_dimensions" = "Specify Input Dimensions";
+"shape" = "Shape";
+"batch_channels_hw" = "Batch, Channels, Height, Width";
+"conversion_note" = "Conversion may take a few moments depending on model size";
+
+/* Import Dataset Sheet */
+"import_dataset_title" = "Import Dataset";
+"source_folder" = "Source Folder";
+"select_folder" = "Select Folder";
+"import_btn" = "Import";
+
+/* Distillation */
+"distillation_runs" = "Distillation Runs";
+"no_distillation_runs" = "No distillation runs yet";
+"create_distillation_description" = "Create a distillation run to transfer knowledge from a larger model to a smaller one";
+"select_distillation_run" = "Select a Distillation Run";
+"configuration" = "Configuration";
+"logs" = "Logs";
+"no_logs_yet" = "No logs yet";
+"progress" = "Progress";
+
+/* Distillation Wizard */
+"new_distillation" = "New Distillation";
+"define_your_task" = "Define Your Task";
+"task_description_hint" = "Describe the task you want the student model to learn";
+"task_description" = "Task Description";
+"task_example" = "Example: Classify images into 10 categories";
+"select_teacher_model" = "Select Teacher Model";
+"teacher_model_hint" = "Choose a large, capable model to teach the student";
+"cloud_provider" = "Cloud Provider";
+"configure_student_model" = "Configure Student Model";
+"student_model_hint" = "Configure the smaller model that will learn from the teacher";
+"synthetic_samples" = "Synthetic Samples";
+"review_configuration" = "Review Configuration";
+"review_config_hint" = "Review your distillation configuration before starting";
+"estimated_api_cost" = "Estimated API Cost";
+
+/* Model Export */
+"export_model" = "Export Model";
+"successfully_exported" = "Successfully Exported";
+"source" = "Source";
+"export_format" = "Export Format";
+"output" = "Output";
+"export_complete" = "Export Complete";
+
+/* Experiments */
+"projects" = "Projects";
+"experiments_label" = "Experiments";
+"choose_project_to_view" = "Choose a project to view its experiments";
+"choose_experiment_to_view" = "Choose an experiment to view details";
+"new_project" = "New Project";
+"new_experiment" = "New Experiment";
+
+/* Hyperparameter Tuning */
+"select_study_hint" = "Select a study to view details and results";
+"overview" = "Overview";
+"trials" = "Trials";
+"parameters" = "Parameters";
+"analysis" = "Analysis";
+"active_studies" = "Active Studies";
+"completed_studies" = "Completed Studies";
+"new_tuning_study" = "New Tuning Study";
+"minimize_loss" = "Minimize Loss";
+"maximize_accuracy" = "Maximize Accuracy";
+
+/* Live Training Chart */
+"training_progress" = "Training Progress";
+"live" = "Live";
+"waiting_for_training_data" = "Waiting for training data...";
+"system_resources" = "System Resources";
+
+/* Common UI */
+"tags" = "Tags";
+"name" = "Name";
+"checking" = "Checking...";
+"usage" = "Usage";
+
+/* Dashboard extras */
+"load_demo_data_btn" = "Load Demo Data";
+"no_datasets_available" = "No datasets available";
+
+/* Count formats */
+"n_runs %lld" = "%lld runs";
+"trials_progress %lld %lld" = "%lld/%lld trials";
+"comparing_runs %lld" = "Comparing %lld runs";
+"temperature_value %@" = "Temperature: %@";
+"alpha_value %@" = "Alpha: %@";
