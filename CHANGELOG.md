@@ -5,6 +5,29 @@ All notable changes to MacML will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-01-17
+
+### ⚙️ Miscellaneous
+
+- Bump version to 0.1.2 [skip ci]
+
+
+### 🐛 Bug Fixes
+
+- Resolve Task type mismatch in DistillationService
+
+- Remove duplicate StepIndicator and use existing one
+
+
+### 🔨 Refactoring
+
+- **dashboard:** Remove accuracy trend chart, add more gauge metrics
+
+
+### 🚀 Features
+
+- Add knowledge distillation feature
+
 ## [0.1.1] - 2026-01-16
 
 ### ⚙️ Miscellaneous
@@ -34,6 +57,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **ci:** Remove GitHub API calls from git-cliff template
 
 - **ci:** Remove GitHub API calls from git-cliff template
+
+
+### 📚 Documentation
+
+- Update CHANGELOG.md for v0.1.1 [skip ci]
 
 
 ### 🚀 Features
