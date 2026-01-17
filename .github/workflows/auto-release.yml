@@ -323,31 +323,26 @@ jobs:
         run: |
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
 
-          # Generate categorized changelog using git-cliff
+          # Generate categorized changelog using git-cliff (only for this version range)
           if [ -n "$PREV_TAG" ]; then
-            git-cliff ${PREV_TAG}..HEAD --tag "v${VERSION}" -o changelog_section.md
+            git-cliff ${PREV_TAG}..HEAD --tag "v${VERSION}" --strip header -o changelog_section.md
           else
-            git-cliff --tag "v${VERSION}" -o changelog_section.md
+            git-cliff --tag "v${VERSION}" --strip header -o changelog_section.md
           fi
 
-          # Create release notes with header
-          cat << EOF > release_notes.md
-          ## MacML v${VERSION}
+          # Create release notes header
+          cat > release_notes.md << 'HEADER'
+          ## What's New
+          HEADER
 
-          ### What's Changed in This Release
-
-          * ${PR_TITLE} by @${PR_AUTHOR} in ${PR_URL}
-
-          EOF
-
-          # Add categorized changelog (skip the header from git-cliff)
+          # Extract categorized sections from git-cliff (skip version header line)
           if [ -f changelog_section.md ]; then
-            # Extract just the version section, skip the main header
-            sed -n '/^## \[/,/^## \[/p' changelog_section.md | head -n -1 >> release_notes.md 2>/dev/null || \
-            cat changelog_section.md >> release_notes.md
+            # Remove the version header line and empty lines at start, keep only category sections
+            sed -n '/^### /,$ p' changelog_section.md >> release_notes.md
           fi
 
-          cat << EOF >> release_notes.md
+          # Add installation section
+          cat >> release_notes.md << FOOTER
 
           ---
 
@@ -374,10 +369,7 @@ jobs:
           ---
 
           **Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG:-initial}...v${VERSION}
-
-          ---
-          _Release generated with ❤️ by MacML CI_
-          EOF
+          FOOTER
 
       - name: Update CHANGELOG.md
         env:
