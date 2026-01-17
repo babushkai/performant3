@@ -97,7 +97,8 @@ struct SidebarView: View {
                         Text(L.noModelsYet)
                             .font(.caption)
                             .foregroundColor(.secondary)
-                            .padding(.leading, 4)
+                            .padding(.leading, 8)
+                            .padding(.vertical, 4)
                     }
                 } label: {
                     Button {
@@ -147,7 +148,8 @@ struct SidebarView: View {
                         Text(L.noTrainingRunsYet)
                             .font(.caption)
                             .foregroundColor(.secondary)
-                            .padding(.leading, 4)
+                            .padding(.leading, 8)
+                            .padding(.vertical, 4)
                     }
                 } label: {
                     Button {
@@ -197,7 +199,7 @@ struct SidebarView: View {
             }
         }
         .listStyle(.sidebar)
-        .frame(minWidth: 220)
+        .frame(minWidth: 260)
         .toolbar {
             ToolbarItemGroup {
                 Menu {
@@ -247,8 +249,9 @@ struct SidebarModelRow: View {
 
             Spacer()
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 6)
         .padding(.leading, 8)
+        .contentShape(Rectangle())
         .contextMenu {
             Button {
                 appState.selectedModelId = model.id
@@ -363,8 +366,9 @@ struct SidebarRunRow: View {
 
             Spacer()
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 6)
         .padding(.leading, 8)
+        .contentShape(Rectangle())
         .contextMenu {
             if run.status == .running {
                 Button {
