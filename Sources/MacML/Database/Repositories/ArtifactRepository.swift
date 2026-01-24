@@ -122,12 +122,17 @@ actor ArtifactRepository {
             return
         }
 
-        // Delete file
+        // Delete file first - if this fails, we don't delete the DB record
+        // This prevents orphaned files (file exists but no DB record)
         if let path = record.localPath {
-            try? fileManager.removeItem(atPath: path)
+            // Only throw if file exists but can't be deleted
+            // If file doesn't exist, that's fine - proceed with DB cleanup
+            if fileManager.fileExists(atPath: path) {
+                try fileManager.removeItem(atPath: path)
+            }
         }
 
-        // Delete database record
+        // Delete database record only after file is successfully deleted
         try await db.write { db in
             _ = try ArtifactRecord.deleteOne(db, key: hash)
         }
@@ -135,10 +140,23 @@ actor ArtifactRepository {
 
     func deleteByRun(_ runId: String) async throws {
         let artifacts = try await findByRun(runId)
+
+        // Delete files first - collect any failures
+        var failedPaths: [String] = []
         for artifact in artifacts {
-            if let path = artifact.localPath {
-                try? fileManager.removeItem(atPath: path)
+            if let path = artifact.localPath, fileManager.fileExists(atPath: path) {
+                do {
+                    try fileManager.removeItem(atPath: path)
+                } catch {
+                    failedPaths.append(path)
+                }
             }
+        }
+
+        // If any file deletions failed, throw before deleting DB records
+        // This prevents orphaned files
+        if !failedPaths.isEmpty {
+            throw ArtifactError.deletionFailed(paths: failedPaths)
         }
 
         try await db.write { db in
@@ -191,6 +209,7 @@ enum ArtifactError: Error, LocalizedError {
     case notFound(String)
     case fileNotFound(String)
     case hashMismatch
+    case deletionFailed(paths: [String])
 
     var errorDescription: String? {
         switch self {
@@ -200,6 +219,8 @@ enum ArtifactError: Error, LocalizedError {
             return "Artifact file not found: \(path)"
         case .hashMismatch:
             return "Artifact hash mismatch"
+        case .deletionFailed(let paths):
+            return "Failed to delete artifact files: \(paths.joined(separator: ", "))"
         }
     }
 }

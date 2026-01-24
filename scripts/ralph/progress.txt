@@ -1,0 +1,92 @@
+# Ralph Progress Log
+Started: Sat Jan 24 19:46:34 CET 2026
+
+## Codebase Patterns
+- All ViewModels and Services use `@MainActor` for UI state management
+- SwiftUI Timer callbacks must wrap @State updates in `Task { @MainActor in }` for thread safety
+- Timers in SwiftUI views should be stored in @State and invalidated in onDisappear to prevent memory leaks
+- Use `nonisolated(unsafe)` for properties that need to be accessed from deinit when they only call thread-safe operations
+- `Task.cancel()` and `DispatchSource.cancel()` are thread-safe and can be called from any context
+- Closures passed across actor boundaries need `@Sendable` and proper actor isolation annotations
+- Most concurrency in this codebase is properly handled via @MainActor isolation
+- Simulated training (`runTrainingLoop`) correctly resumes from `currentEpoch`, but MLX training must pass `startEpoch` explicitly
+- When resuming training, use `currentEpoch + 1` as startEpoch since currentEpoch represents the last completed epoch
+- When deleting training runs, also clean up checkpoints (CheckpointManager) and artifacts (ArtifactRepository)
+- Database deletions with SET NULL (like artifacts) don't delete files - explicit cleanup needed
+
+---
+
+## 2026-01-24 - HUNT-001
+- What was implemented:
+  - Analyzed concurrency patterns across the entire codebase using systematic exploration
+  - Identified 2 data race issues in BackgroundTaskManager and MemoryPressureManager
+  - Fixed BackgroundTaskManager: `isCancelled` closure accessed @MainActor-isolated state from non-main-actor context
+  - Fixed MemoryPressureManager: `deinit` accessed @MainActor-isolated properties from non-isolated context
+- Files changed:
+  - Sources/MacML/Services/BackgroundTaskManager.swift
+  - Sources/MacML/Services/MemoryPressureManager.swift
+- **Learnings for future iterations:**
+  - Most code is already well-architected with @MainActor isolation
+  - Watch for closures that capture @MainActor state but are called from background contexts
+  - deinit is always non-isolated - use `nonisolated(unsafe)` for properties that need cleanup in deinit
+  - TrainingService patterns with nested `Task { @MainActor in }` are correct for callback-based APIs
+  - The codebase has a warning about Swift 6 mode in TrainingViewModel.swift:47 that should be fixed
+---
+
+## 2026-01-24 - HUNT-002
+- What was implemented:
+  - Analyzed TrainingService, MLXTrainingService, TrainingViewModel for edge cases
+  - Identified bug: Resuming paused MLX training restarted from epoch 1 instead of currentEpoch
+  - Added `startEpoch` parameter to `TrainingBackend` protocol and `MLXTrainingService.train()`
+  - Updated `TrainingService.resumeTraining()` to pass `currentEpoch + 1` to resume from correct epoch
+  - Added validation to clamp startEpoch to valid range [1, config.epochs]
+- Files changed:
+  - Sources/MacML/Services/TrainingBackend.swift
+  - Sources/MacML/Services/MLXTrainingService.swift
+  - Sources/MacML/Services/TrainingService.swift
+- **Learnings for future iterations:**
+  - `runTrainingLoop` (simulated) uses `while run.currentEpoch < run.totalEpochs` which correctly resumes
+  - `MLXTrainingService.train()` used `for epoch in 1...config.epochs` which always started from 1
+  - MemoryPressureManager posts notifications but no training service subscribes to them (potential future work)
+  - UI validation in NewRunSheet.swift prevents epochs < 1, but backend should also validate
+  - Python training resume path also needs similar fix (uses checkpoint path, not startEpoch)
+---
+
+## 2026-01-24 - HUNT-003
+- What was implemented:
+  - Audited GRDB database operations: DatabaseManager, all Repositories, and cascade behaviors
+  - Identified bug: Orphaned files when deleting runs or models
+    - Checkpoints stored in `~/Library/Application Support/Performant3/checkpoints/{runId}/` were not deleted
+    - Artifacts with `onDelete: .setNull` left files on disk (only DB record was orphaned)
+  - Added `cleanupRunResources(runId:)` method to both `AppState` and `TrainingViewModel`
+  - This method calls `CheckpointManager.deleteCheckpoints()` and `ArtifactRepository.deleteByRun()`
+  - Called from: deleteRun(), deleteRuns(), deleteAllRuns(), and deleteModel()/deleteModels() for associated runs
+- Files changed:
+  - Sources/MacML/main.swift
+  - Sources/MacML/ViewModels/TrainingViewModel.swift
+- **Learnings for future iterations:**
+  - Database schema is well-designed with proper CASCADE/SET NULL constraints
+  - CASCADE: projects→experiments, models→training_runs, training_runs→metrics/logs, models→inference_results
+  - SET NULL: experiments→training_runs (preserves run data), training_runs→artifacts (preserves content-addressed files)
+  - Artifacts use content-addressed storage (SHA256 hash) with deduplication
+  - ArtifactRepository.garbageCollect() exists but only runs on explicit call with 30-day age cutoff
+  - CheckpointManager stores files at `~/Library/Application Support/Performant3/checkpoints/{runId}/`
+  - StorageManager stores model files at `~/Library/Application Support/Performant3/Models/`
+---
+
+## 2026-01-24 - HUNT-004
+- What was implemented:
+  - Thoroughly explored all SwiftUI views for state management issues
+  - Identified critical bug in DashboardView.swift: Timer created via `Timer.scheduledTimer` was never invalidated and updated @State properties from non-main-actor context
+  - Fixed memory leak: Store timer reference in `@State private var monitoringTimer: Timer?`
+  - Fixed lifecycle: Added `onDisappear { stopSystemMonitoring() }` to invalidate timer when view disappears
+  - Fixed thread safety: Wrapped @State updates in `Task { @MainActor in }` and used `[weak appState]` capture
+- Files changed:
+  - Sources/MacML/Views/DashboardView.swift
+- **Learnings for future iterations:**
+  - Timer closures run on an arbitrary thread - always wrap SwiftUI @State updates in `Task { @MainActor in }`
+  - Never create repeating timers without storing a reference and invalidating on view disappear
+  - GPUMonitor in LiveTrainingChart.swift is a good example of proper timer handling with @MainActor class
+  - Other potential issues found but lower priority: onChange on array.count instead of array itself in InferenceView and RunsView
+  - TrainingViewModel.swift:47 still has Swift 6 warning about accessing MainActor static property from nonisolated context
+---
