@@ -198,6 +198,11 @@ actor PythonExecutor {
         // Wait for process to complete
         process.waitUntilExit()
 
+        // Close pipe file handles to release resources immediately
+        // Without this, pipes remain open until garbage collected
+        try? stdoutPipe.fileHandleForReading.close()
+        try? stderrPipe.fileHandleForReading.close()
+
         let exitCode = process.terminationStatus
         if exitCode != 0 {
             throw PythonExecutorError.scriptFailed(exitCode: Int(exitCode))
@@ -291,6 +296,10 @@ actor PythonExecutor {
         // Wait for process to complete
         process.waitUntilExit()
 
+        // Close pipe file handles to release resources immediately
+        try? stdoutPipe.fileHandleForReading.close()
+        try? stderrPipe.fileHandleForReading.close()
+
         let exitCode = process.terminationStatus
         if exitCode != 0 {
             throw PythonExecutorError.scriptFailed(exitCode: Int(exitCode))
@@ -318,7 +327,11 @@ actor PythonExecutor {
         try process.run()
         process.waitUntilExit()
 
-        let data = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
+        let fileHandle = stdoutPipe.fileHandleForReading
+        let data = fileHandle.readDataToEndOfFile()
+
+        // Close pipe file handle to release resources immediately
+        try? fileHandle.close()
 
         guard process.terminationStatus == 0 else {
             throw PythonExecutorError.scriptFailed(exitCode: Int(process.terminationStatus))
@@ -352,6 +365,8 @@ actor PythonExecutor {
         do {
             try process.run()
             process.waitUntilExit()
+            // Close pipe file handle to release resources
+            try? pipe.fileHandleForReading.close()
             return process.terminationStatus == 0
         } catch {
             return false
@@ -370,7 +385,11 @@ actor PythonExecutor {
         try process.run()
         process.waitUntilExit()
 
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let fileHandle = pipe.fileHandleForReading
+        let data = fileHandle.readDataToEndOfFile()
+        // Close pipe file handle to release resources
+        try? fileHandle.close()
+
         let packages = try JSONDecoder().decode([PipPackage].self, from: data)
 
         var result: [String: String] = [:]
