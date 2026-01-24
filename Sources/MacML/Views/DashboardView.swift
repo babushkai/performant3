@@ -10,6 +10,7 @@ struct DashboardView: View {
     @State private var systemMetrics = SystemMetrics()
     @State private var showWelcome = true
     @State private var selectedHubTab = 0
+    @State private var monitoringTimer: Timer?
 
     // Computed analytics
     var completedRuns: [TrainingRun] {
@@ -87,6 +88,9 @@ struct DashboardView: View {
         .task {
             storageStats = await appState.getStorageStats()
             startSystemMonitoring()
+        }
+        .onDisappear {
+            stopSystemMonitoring()
         }
     }
 
@@ -633,13 +637,24 @@ struct DashboardView: View {
     // MARK: - Helpers
 
     private func startSystemMonitoring() {
-        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
-            // Simulate system metrics updates
-            systemMetrics.cpuUsage = Double.random(in: 15...45)
-            systemMetrics.memoryUsed = Double.random(in: 8...16) * 1024 * 1024 * 1024
-            systemMetrics.uptime += 2
-            systemMetrics.throughput = appState.activeRuns.isEmpty ? 0 : Double.random(in: 50...200)
+        // Invalidate any existing timer before creating a new one
+        monitoringTimer?.invalidate()
+
+        monitoringTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak appState] _ in
+            // Update state on main actor for thread safety
+            Task { @MainActor in
+                guard let appState = appState else { return }
+                systemMetrics.cpuUsage = Double.random(in: 15...45)
+                systemMetrics.memoryUsed = Double.random(in: 8...16) * 1024 * 1024 * 1024
+                systemMetrics.uptime += 2
+                systemMetrics.throughput = appState.activeRuns.isEmpty ? 0 : Double.random(in: 50...200)
+            }
         }
+    }
+
+    private func stopSystemMonitoring() {
+        monitoringTimer?.invalidate()
+        monitoringTimer = nil
     }
 
     private func formatMemory(_ bytes: Double) -> String {

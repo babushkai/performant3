@@ -14,8 +14,8 @@
         "Build passes"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Fixed 2 data races: BackgroundTaskManager isCancelled closure and MemoryPressureManager deinit"
     },
     {
       "id": "HUNT-002",
@@ -28,8 +28,8 @@
         "Build passes"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Fixed: Resuming paused MLX training restarted from epoch 1 instead of currentEpoch. Added startEpoch parameter to TrainingBackend protocol."
     },
     {
       "id": "HUNT-003",
@@ -42,8 +42,8 @@
         "Build passes"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Fixed orphaned files: deleting runs/models now also deletes associated checkpoints and artifact files via cleanupRunResources()"
     },
     {
       "id": "HUNT-004",
@@ -56,8 +56,8 @@
         "Build passes"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Fixed DashboardView timer: memory leak (timer never invalidated) and thread safety violation (@State updates from Timer callback without @MainActor). Now stores timer reference, invalidates onDisappear, and wraps updates in Task { @MainActor }."
     },
     {
       "id": "HUNT-005",
